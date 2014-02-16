@@ -1,0 +1,14 @@
+{
+  "name": "Synk",
+  "version": "1.0.0",
+  "description": "Mobile app for synchronizing personal contact info across multiple recipients",
+  "main": "server.js",
+  "author": {
+    "name": "Royston Yinkore",
+    "email": "roystonyinkore@gmail.com"
+  },
+  "dependencies": {
+    "mysql": "~2.0.0-rc2",
+    "express": "~3.4.8"
+  }
+}

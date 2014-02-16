@@ -1,0 +1,52 @@
+CREATE TABLE `contact` (
+  `id` char(36) NOT NULL,
+  `pin` char(36) DEFAULT NULL,
+  `user` char(36) DEFAULT NULL,
+  `can_update` tinyint(1) DEFAULT NULL,
+  `is_deleted` bit(1) DEFAULT NULL,
+  `ts` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+CREATE TABLE `info` (
+  `id` char(36) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+  `user` char(36) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
+  `type_fk` int(11) DEFAULT NULL,
+  `info` varchar(45) DEFAULT NULL,
+  `more` varchar(100) DEFAULT NULL,
+  `ts` int(11) DEFAULT NULL,
+  `is_deleted` bit(1) DEFAULT NULL,
+  `is_edited` bit(1) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+CREATE TABLE `pin` (
+  `id` char(36) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+  `user` char(36) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
+  `pin` varchar(10) DEFAULT NULL,
+  `name` varchar(45) DEFAULT NULL,
+  `photo_path` varchar(100) DEFAULT NULL,
+  `ts` int(11) DEFAULT NULL,
+  `is_deleted` bit(1) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+CREATE TABLE `pins_info` (
+  `id` char(36) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+  `pin` char(36) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
+  `info` char(36) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
+  `ts` int(11) DEFAULT NULL,
+  `is_deleted` bit(1) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+CREATE TABLE `type` (
+  `id` int(11) NOT NULL,
+  `name` varchar(45) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+CREATE TABLE `user` (
+  `id` char(36) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+  `username` varchar(45) DEFAULT NULL,
+  `email` varchar(45) DEFAULT NULL,
+  `pword` varchar(45) DEFAULT NULL,
+  `reg_date` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
