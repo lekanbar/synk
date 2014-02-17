@@ -25,6 +25,77 @@ exports.db = (function(){
     });
 
     //=====myIP QUERIES=======
+
+    out.getUserInfo_poll = function(userId, timestamp){
+        var sql = "SELECT id, type_fk, info, more, ts, is_deleted FROM info WHERE user = ? AND ts > ?";
+        connection.query(sql, [userId, timestamp], function (err, res){
+           if(err){
+               console.log("error occured!", err);
+           }
+           cb(err, res);
+        });
+    };
+
+    out.getUserPins_poll = function(userId, timestamp){
+        var sql = "SELECT id, pin, name, ts, is_deleted FROM pin WHERE user = ? AND ts > ?";
+        connection.query(sql, [userId, timestamp], function (err, res){
+           if(err){
+               console.log("error occured!", err);
+           }
+           cb(err, res);
+        });
+    };
+
+    out.getUserPinsInfo_poll = function(userId, timestamp){
+        var sql = "SELECT pi.id, pi.pin, pi.info, pi.ts, pi.is_deleted FROM pins_info pi \
+                    INNER JOIN pin p ON p.id = pi.pin \
+                    WHERE p.user = ? AND pi.ts > ?";
+        connection.query(sql, [userId, timestamp], function (err, res){
+           if(err){
+               console.log("error occured!", err);
+           }
+           cb(err, res);
+        });
+    };
+
+    out.getUserContacts_poll = function(userId, timestamp){
+        var sql = "SELECT c.id, p.pin, p.name, c.is_deleted FROM contact c \
+                    INNER JOIN pin p ON p.id = c.pin \
+                    WHERE c.user = ? AND p.ts > ?";
+        connection.query(sql, [userId, timestamp], function (err, res){
+           if(err){
+               console.log("error occured!", err);
+           }
+           cb(err, res);
+        });
+    };
+
+    out.getUserContacts_poll = function(userId, timestamp){
+        var sql = "SELECT c.id, p.pin, p.name, c.is_deleted FROM contact c \
+                    INNER JOIN pin p ON p.id = c.pin \
+                    WHERE c.user = ? AND p.ts > ?";
+        connection.query(sql, [userId, timestamp], function (err, res){
+           if(err){
+               console.log("error occured!", err);
+           }
+           cb(err, res);
+        });
+    };
+
+    out.getUserConnectedContacts_poll = function(userId, timestamp){
+        var sql = "SELECT c.id, c.pin, u.id as 'user_id', u.username, c.can_update, c.is_deleted \
+                    FROM contact c \
+                    INNER JOIN pin p ON p.id = c.pin \
+                    INNER JOIN user u ON u.id = c.user \
+                    WHERE p.user = ? AND c.ts > ?";
+        connection.query(sql, [userId, timestamp], function (err, res){
+           if(err){
+               console.log("error occured!", err);
+           }
+           cb(err, res);
+        });
+    };
+
     out.getUserByLoginAndPassword = function(login, password, cb){
         var sql = "SELECT * FROM user WHERE (email = ? OR username = ?) AND pword = ?";
         connection.query(sql, [login, login, password], function(err, res){

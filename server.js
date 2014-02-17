@@ -26,92 +26,94 @@ app.get("/index", function(req, res){
 });
 
 //=====================POLL GET==============================
-app.get("/api/poll/get/clientpersonalinfo", function(req, res){
-    /*input
-time_stamp, user_id
-*/
-    /*
-var sql = "SELECT id, type_fk, info, more, ts, is_deleted FROM info WHERE user = ? AND ts > ?";
-*/
-    /*output
-id, type_id, info, more, time_stamp
-*/
+app.get("/api/poll/get/clientpersonalinfo", function (req, res){
+    var userId = req.query.user_id,
+        timeStamp = req.query.time_stamp;
 
+    db.getUserInfo_poll(userId, timeStamp, function (err, result){
+        if(err){
+            console.log("error occured with: ", err);
+            res.send(err);
+        }
+        else{
+            res.send(result);
+        }
+    });
 });
 
-app.get("/api/poll/get/clientpins", function(req, res){
-    /*input
-time_stamp, user_id
-*/
+app.get("/api/poll/get/clientpins", function (req, res){
+    var userId = req.query.user_id,
+        timeStamp = req.query.time_stamp;
 
-    /*
-var sql = "SELECT id, pin, name, ts, is_deleted FROM pin WHERE user = ? AND ts > ?"
-*/
-    /*output
-id, pin, name, photo_path, time_stamp
-*/
+    db.getUserPins_poll(userId, timeStamp, function(err, result){
+        if(err){
+            console.log("error occured with: ", err);
+            res.send(err);
+        }
+        else{
+            res.send(result);
+        }
+    });
 });
 
-app.get("/api/poll/get/clientpininfo", function(req, res){
-    /*input
-time_stamp, user_id
-*/
-    /*
-var sql = "SELECT pi.id, pi.pin, pi.info, pi.ts, pi.is_deleted FROM pins_info pi
-    INNER JOIN pin p ON p.id = pi.pin
-    WHERE p.user = ? AND pi.ts > ?";
-*/
-    /*output
-id, pin, info, time_stamp
-*/
+app.get("/api/poll/get/clientpininfo", function(req, res){    
+    var userId = req.query.user_id,
+        timeStamp = req.query.time_stamp;
+
+    db.getUserPinsInfo_poll(userId, timeStamp, function(err, result){
+        if(err){
+            console.log("error occured with: ", err);
+            res.send(err);
+        }
+        else{
+            res.send(result);
+        }
+    });
 });
 
 app.get("/api/poll/get/clientcontacts", function(req, res){
-    /*input
-time_stamp, user_id
-*/
-    /*
-var sql = "SELECT c.id, p.pin, p.name, c.is_deleted FROM contact c
-    INNER JOIN pin p ON p.id = c.pin
-    WHERE c.user = ? AND p.ts > ?";
-*/
+    var userId = req.query.user_id,
+        timeStamp = req.query.time_stamp;
 
-    /*
-id, pin, name
-*/
+    db.getUserContacts_poll(userId, timeStamp, function(err, result){
+        if(err){
+            console.log("error occured with: ", err);
+            res.send(err);
+        }
+        else{
+            res.send(result);
+        }
+    });
 });
 
 app.get("/api/poll/get/clientcontactinfo", function(req, res){
-    /*input
-time_stamp, user_id, contact_id
-*/
-    /*
-var sql = "SELECT i.id, ? as 'contact_id', i.type_fk, i.info, i.more, i.ts, i.is_deleted
-    FROM contact c
-    INNER JOIN pin p ON p.id = c.pin
-    INNER JOIN pins_info pi ON pi.pin = p.id
-    INNER JOIN info i ON i.id = pi.info
-    WHERE c.user = ? AND i.ts > ?";
-*/
-    /*output
-id, contact_id, type_id, info, more, time_stamp, is_deleted
-*/
+    var userId = req.query.user_id,
+        timeStamp = req.query.time_stamp;
+
+    db.getUserContacts_poll(userId, timeStamp, function(err, result){
+        if(err){
+            console.log("error occured with: ", err);
+            res.send(err);
+        }
+        else{
+            res.send(result);
+        }
+    });
 });
 
 app.get("/api/poll/get/clientconnectedcontacts", function(req, res){
-    /*input
-time_stamp, user_id
-*/
-    /*
-var sql = "SELECT c.id, c.pin, u.id as 'user_id', u.username, c.can_update, c.is_deleted
-    FROM contact c
-    INNER JOIN pin p ON p.id = c.pin
-    INNER JOIN user u ON u.id = c.user
-    WHERE p.user = ? AND c.ts > ?";
-*/
-    /*output
-id, pin, user_id, username, can_update, is_deleted
-*/
+    var userId = req.query.user_id,
+        timeStamp = req.query.time_stamp;
+
+    db.getUserConnectedContacts_poll(userId, timeStamp, function(err, result){
+        if(err){
+            console.log("error occured with: ", err);
+            res.send(err);
+        }
+        else{
+            res.send(result);
+        }
+    });
 });
 
 //=====================POLL POST==================================
