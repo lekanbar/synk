@@ -61,7 +61,7 @@ exports.db = (function(){
     out.getUserContacts_poll = function(userId, timestamp){
         var sql = "SELECT c.id, p.pin, p.name, c.is_deleted FROM contact c \
                     INNER JOIN pin p ON p.id = c.pin \
-                    WHERE c.user = ? AND p.ts > ?";
+                    WHERE c.user = ? AND c.ts > ?";
         connection.query(sql, [userId, timestamp], function (err, res){
            if(err){
                console.log("error occured!", err);
@@ -70,10 +70,11 @@ exports.db = (function(){
         });
     };
 
-    out.getUserContacts_poll = function(userId, timestamp){
-        var sql = "SELECT c.id, p.pin, p.name, c.is_deleted FROM contact c \
-                    INNER JOIN pin p ON p.id = c.pin \
-                    WHERE c.user = ? AND p.ts > ?";
+    out.getUserContactsInfo_poll = function(userId, timestamp){
+        var sql = "SELECT i.id, c.id as 'contact_id', i.type_fk, i.info, i.more, i.ts FROM info i \
+                    INNER JOIN pins_info pi ON pi.info = i.id \
+                    INNER JOIN contact c ON c.pin = pi.pin \
+                    WHERE c.user = ? AND i.ts > ?";
         connection.query(sql, [userId, timestamp], function (err, res){
            if(err){
                console.log("error occured!", err);

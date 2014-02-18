@@ -90,7 +90,7 @@ app.get("/api/poll/get/clientcontactinfo", function(req, res){
     var userId = req.query.user_id,
         timeStamp = req.query.time_stamp;
 
-    db.getUserContacts_poll(userId, timeStamp, function(err, result){
+    db.getUserContactsInfo_poll(userId, timeStamp, function(err, result){
         if(err){
             console.log("error occured with: ", err);
             res.send(err);
