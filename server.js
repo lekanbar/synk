@@ -116,8 +116,6 @@ app.get("/api/poll/get/clientconnectedcontacts", function(req, res){
     });
 });
 
-//=====================POLL POST==================================
-
 //==========GET=================
 
 app.get("/api/get/login", function(req, res){
@@ -641,7 +639,7 @@ app.delete("/api/poll/delete/pin", function(req, res){
     var pinId = req.body.pin_id,
         userId = req.body.user_id;
 
-    db.deletePin(userId, pinId, function(err, result){
+    db.deletePinInfo_poll(userId, pinId, function(err, result){
         if(err){
             res.status(404).send({error:'An error occured deleting information'});
         }

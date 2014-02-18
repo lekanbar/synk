@@ -268,7 +268,7 @@ exports.db = (function(){
 
     out.insertInfo_poll = function (guid, type, user, info, detail, cb) {
         var sql = "INSERT INTO info \
-                    SELECT * FROM (?, ? as 'user', ? as 'type', ? as 'info', ? as 'more', UNIX_TIMESTAMP() as 'ts', 0) AS tmp \
+                    SELECT * FROM (SELECT ?, ? as 'user', ? as 'type', ? as 'info', ? as 'more', UNIX_TIMESTAMP() as 'ts', 0) AS tmp \
                     WHERE EXISTS (SELECT id FROM type WHERE id = ?) AND EXISTS (SELECT id FROM user WHERE id = ?) LIMIT 1";
         connection.query(sql, [guid, user, type, info, detail, type, user], function (err, res) {
             if (err) {
@@ -291,7 +291,7 @@ exports.db = (function(){
     out.insertPin = function(userId, pin, name, imagePath, cb){
         imagePath = imagePath === "" ? null : imagePath;
 
-        var sql = "INSERT INTO pin SELECT * FROM (SELECT UUID(), ? as 'user', ? as 'pin', ? as 'name', ? as 'photo_path', UNIX_TIMESTAMP() as 'ts') AS tmp \
+        var sql = "INSERT INTO pin SELECT * FROM (SELECT UUID(), ? as 'user', ? as 'pin', ? as 'name', ? as 'photo_path', UNIX_TIMESTAMP() as 'ts', 0) AS tmp \
                     WHERE EXISTS (SELECT id FROM user WHERE id = ?) \
                     AND NOT EXISTS (SELECT id FROM pin WHERE LCASE(pin) = LCASE(?)) LIMIT 1";
         connection.query(sql, [userId, pin, name, imagePath, userId, pin], function (err, res) {
@@ -317,7 +317,7 @@ exports.db = (function(){
     };
 
     out.insertPinInfo_poll = function(guid, userId, pinId, infoId, cb){
-        var sql = "INSERT INTO pins_info SELECT * FROM (?, ?, ?, UNIX_TIMESTAMP() as 'ts', 0) AS tmp \
+        var sql = "INSERT INTO pins_info SELECT * FROM (SELECT ?, ?, ?, UNIX_TIMESTAMP() as 'ts', 0) AS tmp \
                     WHERE NOT EXISTS(SELECT id FROM pins_info WHERE pin = ? AND info = ? AND NOT is_deleted LIMIT 1) \
                     AND EXISTS(SELECT id FROM pin WHERE id = ? AND user = ? AND NOT is_deleted LIMIT 1) \
                     AND EXISTS(SELECT id FROM info WHERE id = ? AND user = ? AND NOT is_deleted LIMIT 1)";
@@ -341,7 +341,7 @@ exports.db = (function(){
             3. That the PIN does not already exist for the user as a contact
             4. That the PIN has associated 'name' info to make it valid
         */
-        var sql = "INSERT INTO contact SELECT * FROM (SELECT UUID(), (SELECT id FROM pin WHERE LCASE(pin) = LCASE(?) LIMIT 1), ?, 1 as 'can_update') AS tmp \
+        var sql = "INSERT INTO contact SELECT * FROM (SELECT UUID(), (SELECT id FROM pin WHERE LCASE(pin) = LCASE(?) LIMIT 1), ?, 1 as 'can_update', 0, UNIX_TIMESTAMP()) AS tmp \
                     WHERE EXISTS (SELECT id FROM pin WHERE LCASE(pin) = LCASE(?) AND user <> ? LIMIT 1) \
                     AND NOT EXISTS (SELECT c.id FROM contact c \
 				        INNER JOIN pin p ON p.id = c.pin \
