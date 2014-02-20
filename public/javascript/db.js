@@ -59,7 +59,7 @@ exports.db = (function(){
     };
 
     out.getUserContacts_poll = function(userId, timestamp){
-        var sql = "SELECT c.id, p.pin, p.name, c.is_deleted FROM contact c \
+        var sql = "SELECT c.id, p.pin, p.name, c.is_deleted, c.ts FROM contact c \
                     INNER JOIN pin p ON p.id = c.pin \
                     WHERE c.user = ? AND c.ts > ?";
         connection.query(sql, [userId, timestamp], function (err, res){
@@ -84,7 +84,7 @@ exports.db = (function(){
     };
 
     out.getUserConnectedContacts_poll = function(userId, timestamp){
-        var sql = "SELECT c.id, c.pin, u.id as 'user_id', u.username, c.can_update, c.is_deleted \
+        var sql = "SELECT c.id, c.pin, u.id as 'user_id', u.username, c.can_update, c.is_deleted, c.ts \
                     FROM contact c \
                     INNER JOIN pin p ON p.id = c.pin \
                     INNER JOIN user u ON u.id = c.user \
