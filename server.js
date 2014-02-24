@@ -71,11 +71,11 @@ app.get("/api/poll/get/clientpininfo", function(req, res){
     });
 });
 
-app.get("/api/poll/get/clientcontacts", function(req, res){
+app.get("/api/poll/get/clientcontacts", function (req, res){
     var userId = req.query.user_id,
         timeStamp = req.query.time_stamp;
 
-    db.getUserContacts_poll(userId, timeStamp, function(err, result){
+    db.getUserContacts_poll(userId, timeStamp, function (err, result){
         if(err){
             console.log("error occured with: ", err);
             res.send(err);
@@ -497,10 +497,10 @@ app.put("/api/poll/put/pininfo", function(req, res){
 
     var userId = req.body.user_id,
         pinId = req.body.pin_id,
-        oldInfoId = req.body.old_info_id,
-        newInfoId = req.body.new_info_id;
+        guid = req.body.guid,
+        newInfoId = req.body.info_id;
 
-    db.updatePinInfo_poll(userId, pinId, oldInfoId, newInfoId, function(err, result){
+    db.updatePinInfo_poll(guid, userId, pinId, newInfoId, function(err, result){
         if(err){
             res.status(404).send({error:'An error occured updating information'});
         }
@@ -621,7 +621,7 @@ app.delete("/api/poll/delete/info", function (req, res){
 
 app.delete("/api/delete/pin", function(req, res){
     //{user_id:1, server_id:7}
-    var pinId = req.body.server_id,
+    var pinId = req.body.guid,
         userId = req.body.user_id;
 
     db.deletePin(userId, pinId, function(err, result){

@@ -440,20 +440,18 @@ exports.db = (function(){
         })
     };
 
-    out.updatePinInfo_poll = function(userId, pinId, oldInfoId, newInfoId, cb){
+    out.updatePinInfo_poll = function(guid, userId, pinId, newInfoId, cb){
 
         //user is owner of pin
         //user is owner of infoid
         //entry does not exist (newPin)
-        var sql = "CREATE TEMPORARY TABLE temp_pins_info SELECT * FROM pins_info WHERE pin = ? AND info = ? LIMIT 1; \
-                    UPDATE pins_info SET info = ?, ts = UNIX_TIMESTAMP() \
-                    WHERE info = ? AND pin = ? \
-                    AND NOT EXISTS(SELECT id FROM temp_pins_info) \
+        var sql = "UPDATE pins_info SET info = ?, ts = UNIX_TIMESTAMP() \
+                    WHERE id = ? \
+                    AND NOT EXISTS(SELECT id FROM pins_info WHERE pin = ? AND info = ? LIMIT 1) \
                     AND EXISTS(SELECT id FROM pin WHERE id = ? AND user = ? LIMIT 1) \
-                    AND EXISTS(SELECT id FROM info WHERE id = ? AND user = ? LIMIT 1); \
-                    DROP TABLE temp_pins_info;";
+                    AND EXISTS(SELECT id FROM info WHERE id = ? AND user = ? LIMIT 1); ";
 
-        connection.query(sql, [pinId, newInfoId, newInfoId, oldInfoId, pinId, pinId, userId, newInfoId, userId], function (err, res) {
+        connection.query(sql, [newInfoId, guid, pinId, newInfoId, pinId, userId, newInfoId, userId], function (err, res) {
             if (err) {
                 cb(err, res);
                 console.log("error occured!", err);
