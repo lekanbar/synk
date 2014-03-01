@@ -3,9 +3,16 @@ var mysql = require('mysql');
 
 exports.db = (function(){
     var out = {};
-    var connection = mysql.createConnection({
+    /*var connection = mysql.createConnection({
         user: 'root',
         password: 'golden',
+        database: 'my_ip',
+        multipleStatements: true
+    });*/
+
+    var connection = mysql.createConnection({
+        user: 'root',
+        password: 'mysqlPassword',
         database: 'my_ip',
         multipleStatements: true
     });
