@@ -192,17 +192,16 @@ app.get("/api/get/pins", function(req, res){
 
 /*TODO: implement without photo_path*/
 app.get("/api/get/pinimage", function(req, res){
-    //api/get/pins/?pin_id=3&photo_path=2n34nji2342jk.jpg&user_id=1
+    //api/get/pins/?pin_id=3&user_id=1
     var userId = req.query.user_id,
-        pinId = req.query.pin_id,
-        photoPath = req.query.photo_path;
+        pinId = req.query.pin_id;
 
-    db.getPinPhoto(userId, pinId, photoPath, function(err, result){
+    db.getPinPhoto(userId, pinId, function(err, result){
         if(photoPath === ""){
             res.status(404).send("");
         }
-        else if(result.length >= 1){
-            res.sendfile(__dirname + '/public/uploads/'+photoPath);
+        else if (result.length >= 1) {
+            res.sendfile(__dirname + '/public/uploads/' + result[0].photo_path);
         }
     });
 });
@@ -386,7 +385,7 @@ app.post("/api/post/contact", function(req, res){
             res.status(404).send({error:'An error occured deleting information'});
         }
         else{
-            res.status(200).send({success:'true', result: result.insertId});
+            res.status(200).send({ success: 'true', result: result.affectedRows });
         }
     });
 });

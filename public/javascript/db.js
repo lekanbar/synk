@@ -33,7 +33,7 @@ exports.db = (function(){
 
     //=====myIP QUERIES=======
 
-    out.getUserInfo_poll = function(userId, timestamp){
+    out.getUserInfo_poll = function(userId, timestamp, cb){
         var sql = "SELECT id, type_fk, info, more, ts, is_deleted FROM info WHERE user = ? AND ts > ?";
         connection.query(sql, [userId, timestamp], function (err, res){
            if(err){
@@ -43,7 +43,7 @@ exports.db = (function(){
         });
     };
 
-    out.getUserPins_poll = function(userId, timestamp){
+    out.getUserPins_poll = function(userId, timestamp, cb){
         var sql = "SELECT id, pin, name, ts, is_deleted FROM pin WHERE user = ? AND ts > ?";
         connection.query(sql, [userId, timestamp], function (err, res){
            if(err){
@@ -53,7 +53,7 @@ exports.db = (function(){
         });
     };
 
-    out.getUserPinsInfo_poll = function(userId, timestamp){
+    out.getUserPinsInfo_poll = function(userId, timestamp, cb){
         var sql = "SELECT pi.id, pi.pin, pi.info, pi.ts, pi.is_deleted FROM pins_info pi \
                     INNER JOIN pin p ON p.id = pi.pin \
                     WHERE p.user = ? AND pi.ts > ?";
@@ -65,8 +65,8 @@ exports.db = (function(){
         });
     };
 
-    out.getUserContacts_poll = function(userId, timestamp){
-        var sql = "SELECT c.id, p.pin, p.name, c.is_deleted, c.ts FROM contact c \
+    out.getUserContacts_poll = function(userId, timestamp, cb){
+        var sql = "SELECT c.id, p.id, p.pin, p.name, c.is_deleted, c.ts FROM contact c \
                     INNER JOIN pin p ON p.id = c.pin \
                     WHERE c.user = ? AND c.ts > ?";
         connection.query(sql, [userId, timestamp], function (err, res){
@@ -77,7 +77,7 @@ exports.db = (function(){
         });
     };
 
-    out.getUserContactsInfo_poll = function(userId, timestamp){
+    out.getUserContactsInfo_poll = function(userId, timestamp, cb){
         var sql = "SELECT i.id, c.id as 'contact_id', i.type_fk, i.info, i.more, i.ts FROM info i \
                     INNER JOIN pins_info pi ON pi.info = i.id \
                     INNER JOIN contact c ON c.pin = pi.pin \
@@ -90,7 +90,7 @@ exports.db = (function(){
         });
     };
 
-    out.getUserConnectedContacts_poll = function(userId, timestamp){
+    out.getUserConnectedContacts_poll = function(userId, timestamp, cb){
         var sql = "SELECT c.id, c.pin, u.id as 'user_id', u.username, c.can_update, c.is_deleted, c.ts \
                     FROM contact c \
                     INNER JOIN pin p ON p.id = c.pin \
@@ -230,17 +230,15 @@ exports.db = (function(){
         });
     };
 
-    out.getPinPhoto = function(userId, pinId, photoPath, cb){
-        var sql = "SELECT c.id FROM contact c \
+    out.getPinPhoto = function(userId, pinId, cb){
+        var sql = "SELECT c.id, p.photo_path FROM contact c \
                     INNER JOIN pin p ON p.id = c.pin \
-                    WHERE c.user = ? AND c.pin = ? \
-                    AND p.photo_path = ? LIMIT 1 \
-                    UNION SELECT u.id FROM user u \
+                    WHERE c.user = ? AND c.pin = ? LIMIT 1 \
+                    UNION SELECT u.id, p.photo_path FROM user u \
                     INNER JOIN pin p ON p.user = u.id \
-                    WHERE u.id = ? AND p.id = ? \
-                    AND p.photo_path = ? LIMIT 1";
+                    WHERE u.id = ? AND p.id = ? LIMIT 1";
 
-        connection.query(sql, [userId, pinId, photoPath, userId, pinId, photoPath], function (err, res) {
+        connection.query(sql, [userId, pinId, userId, pinId], function (err, res) {
            if(err){
                console.log("error occured!", err);
            }
