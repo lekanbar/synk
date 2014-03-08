@@ -66,7 +66,7 @@ exports.db = (function(){
     };
 
     out.getUserContacts_poll = function(userId, timestamp, cb){
-        var sql = "SELECT c.id, p.id, p.pin, p.name, c.is_deleted, c.ts FROM contact c \
+        var sql = "SELECT c.id, p.id AS 'pin_id', p.pin, p.name, c.is_deleted, c.ts FROM contact c \
                     INNER JOIN pin p ON p.id = c.pin \
                     WHERE c.user = ? AND c.ts > ?";
         connection.query(sql, [userId, timestamp], function (err, res){
