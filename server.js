@@ -122,6 +122,12 @@ app.get("/api/poll/get/clientconnectedcontacts", function(req, res){
     });
 });
 
+app.get("/api/get/types", function (req, res){
+    db.getTypes(function(err, result){
+        res.send(result);
+    });
+});
+
 //==========GET=================
 
 app.get("/api/get/login", function(req, res){
@@ -197,11 +203,11 @@ app.get("/api/get/pinimage", function(req, res){
         pinId = req.query.pin_id;
 
     db.getPinPhoto(userId, pinId, function(err, result){
-        if(photoPath === ""){
-            res.status(404).send("");
-        }
-        else if (result.length >= 1) {
+        if (result.length >= 1) {
             res.sendfile(__dirname + '/public/uploads/' + result[0].photo_path);
+        }
+        else{
+            res.status(404).send();
         }
     });
 });

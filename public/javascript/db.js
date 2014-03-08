@@ -246,6 +246,13 @@ exports.db = (function(){
         });
     };
 
+    out.getTypes = function(cb){
+      var sql = "SELECT id, name, icon_name, phone_url FROM type";
+      connection.query(sql, function (err, res) {
+           cb(err, res);
+        });
+    };
+
     //======myIP COMMANDS=======
     out.insertUser = function (username, email, password, cb) {
        var sql = "INSERT INTO user (id, username, email, pword, reg_date) \
