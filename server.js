@@ -36,7 +36,6 @@ app.get("/api/poll/get/clientpersonalinfo", function (req, res){
             res.send(err);
         }
         else{
-            console.log(result);
             res.send(result);
         }
     });
@@ -52,7 +51,6 @@ app.get("/api/poll/get/clientpins", function (req, res){
             res.send(err);
         }
         else{
-            console.log(result);
             res.send(result);
         }
     });
@@ -68,7 +66,6 @@ app.get("/api/poll/get/clientpininfo", function(req, res){
             res.send(err);
         }
         else{
-            console.log(result);
             res.send(result);
         }
     });
@@ -84,7 +81,6 @@ app.get("/api/poll/get/clientcontacts", function (req, res){
             res.send(err);
         }
         else{
-            console.log(result);
             res.send(result);
         }
     });
@@ -100,7 +96,6 @@ app.get("/api/poll/get/clientcontactinfo", function(req, res){
             res.send(err);
         }
         else{
-            console.log(result);
             res.send(result);
         }
     });
@@ -116,7 +111,6 @@ app.get("/api/poll/get/clientconnectedcontacts", function(req, res){
             res.send(err);
         }
         else{
-            console.log(result);
             res.send(result);
         }
     });
@@ -143,7 +137,6 @@ app.get("/api/get/login", function(req, res){
             res.send(err);
         }
         else{
-            console.log(result);
             res.send(result);
         }
     });
@@ -152,8 +145,6 @@ app.get("/api/get/login", function(req, res){
 app.get("/api/get/pinInfo", function(req, res){
     var pinId = req.query.pin_id,
         userId = req.query.user_id;
-    
-        console.log(req.query);
     db.getPinInfo(userId, pinId, function(err, result){
         if(err){
                 res.status(404).send({error: 'An error occured trying to perform the operation'});
@@ -274,7 +265,6 @@ app.post("/api/post/register", function(req, res){
         email = req.body.email;
     
     db.insertUser(username, email, password, function(err, result){
-        console.log(result);
         res.send(result);
     });
 });
@@ -303,7 +293,6 @@ app.post("/api/post/info", function (req, res) {
 
 app.post("/api/poll/post/info", function (req, res) {
     //{type:1, user_id:3,info:"svenroy", detail:"facebook.com/svenroy"}
-    console.log(req.body);
     var type = req.body.type,
         user = req.body.user_id,
         info = req.body.info,
@@ -349,7 +338,6 @@ app.post("/api/post/pin", function(req, res){
 });
 
 app.post("/api/post/pininfo", function(req, res){
-    console.log(req.body);
     var userId = req.body.user_id,
         infoId = req.body.info_id,
         pinId = req.body.pin_id;
@@ -365,7 +353,6 @@ app.post("/api/post/pininfo", function(req, res){
 });
 
 app.post("/api/poll/post/pininfo", function(req, res){
-    console.log(req.body);
     var userId = req.body.user_id,
         infoId = req.body.info_id,
         pinId = req.body.pin_id,
@@ -404,7 +391,6 @@ app.put("/api/put/info", function (req, res){
         userId = req.body.user_id,
         info = req.body.info,
         detail = req.body.detail;
-    //console.log(req.body);
     if(info !== ""){
         db.updateInfo(userId, info, detail, serverId, function(err, result){
             if(err){
@@ -418,13 +404,11 @@ app.put("/api/put/info", function (req, res){
 });
 
 app.put("/api/poll/put/info", function(req, res){
-    console.log(req.body);
     //{user_id:3,info:"svenroy", detail:"facebook.com/svenroy", server_id:4}
     var guid = req.body.guid,
         userId = req.body.user_id,
         info = req.body.info,
         detail = req.body.detail;
-    //console.log(req.body);
     if(info !== ""){
         db.updateInfo_poll(guid, userId, info, detail, function(err, result){
             if(err){
@@ -457,7 +441,6 @@ app.put("/api/put/pin", function(req, res){
 });
 
 app.put("/api/poll/put/pin", function(req, res){
-    console.log(req.body);
     //{user_id:1, name:friends, server_id:7}
     var name = req.body.name,
         userId = req.body.user_id,
@@ -512,7 +495,6 @@ app.put("/api/poll/put/pininfo", function(req, res){
     //this method is only used to change the 'Name' info associated with a PIN
     //a valid PIN must have only ONE name entry
 
-    console.log(req.body);
     var userId = req.body.user_id,
         pinId = req.body.pin_id,
         guid = req.body.guid,
@@ -589,7 +571,6 @@ app.delete("/api/delete/pinInfo", function(req, res){
 });
 
 app.delete("/api/poll/delete/pinInfo", function(req, res){
-    console.log(req.body);
     var userId = req.body.user_id,
         pinId = req.body.pin_id,
         infoId = req.body.info_id,
@@ -600,7 +581,7 @@ app.delete("/api/poll/delete/pinInfo", function(req, res){
             res.status(404).send({success:'false', error:'An error occured deleting information'});
         }
         else{
-            res.status(200).send(result);
+            res.status(200).send();
         }
     });
 });
@@ -625,7 +606,6 @@ app.delete("/api/delete/info", function (req, res){
 app.delete("/api/poll/delete/info", function (req, res){
     //{user_id:3, server_id:4}
     //NOTE: cannot delete last 'Name' info if connected to PINs
-    console.log(req.body);
     var guid = req.body.guid,
         userId = req.body.user_id;
 
@@ -656,7 +636,6 @@ app.delete("/api/delete/pin", function(req, res){
 
 app.delete("/api/poll/delete/pin", function(req, res){
     //{user_id:1, server_id:7}
-    console.log(req.body);
     var pinId = req.body.pin_id,
         userId = req.body.user_id;
 
@@ -687,7 +666,6 @@ app.delete("/api/delete/contact", function(req, res){
 
 app.delete("/api/poll/delete/contact", function(req, res){
     //{user_id:1, server_id:7}
-    console.log(req.body);
     var guid = req.body.guid,
         userId = req.body.user_id;
 

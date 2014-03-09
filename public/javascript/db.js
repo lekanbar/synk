@@ -66,7 +66,7 @@ exports.db = (function(){
     };
 
     out.getUserContacts_poll = function(userId, timestamp, cb){
-        var sql = "SELECT c.id, p.id AS 'pin_id', p.pin, p.name, c.is_deleted, c.ts FROM contact c \
+        var sql = "SELECT c.id, p.id AS 'pin_id', p.pin, c.is_deleted, c.ts FROM contact c \
                     INNER JOIN pin p ON p.id = c.pin \
                     WHERE c.user = ? AND c.ts > ?";
         connection.query(sql, [userId, timestamp], function (err, res){
@@ -283,19 +283,6 @@ exports.db = (function(){
                     SELECT * FROM (SELECT ?, ? as 'user', ? as 'type', ? as 'info', ? as 'more', UNIX_TIMESTAMP() as 'ts', 0) AS tmp \
                     WHERE EXISTS (SELECT id FROM type WHERE id = ?) AND EXISTS (SELECT id FROM user WHERE id = ?) LIMIT 1";
         connection.query(sql, [guid, user, type, info, detail, type, user], function (err, res) {
-            if (err) {
-                cb(err, res);
-                console.log("error occured!", err);
-            }
-            else{
-                return returnTimeStampForTable("info", res, cb);
-            }            
-        });
-    };
-
-    var returnTimeStampForTable = function(table, res, cb){
-        var sql = "SELECT id, ts FROM " + table + " WHERE id = ?";
-        connection.query(sql, res.insertId, function(err, res){
             cb(err, res);
         });
     };
@@ -335,13 +322,7 @@ exports.db = (function(){
                     AND EXISTS(SELECT id FROM info WHERE id = ? AND user = ? AND NOT is_deleted LIMIT 1)";
 
         connection.query(sql, [guid, pinId, infoId, pinId, infoId, pinId, userId, infoId, userId], function(err, res){
-            if (err) {
-                cb(err, res);
-                console.log("error occured!", err);
-            }
-            else{
-                return returnTimeStampForTable("pins_info", res, cb);
-            } 
+            cb(err, res);
         });
     };
 
@@ -384,13 +365,7 @@ exports.db = (function(){
     out.updateInfo_poll = function(guid, userId, info, detail, cb){
         var sql = "UPDATE info SET info = ?, more = ?, ts = UNIX_TIMESTAMP() WHERE id = ? AND user = ?";
         connection.query(sql, [info, detail, guid, userId], function (err, res) {
-            if (err) {
-                cb(err, res);
-                console.log("error occured!", err);
-            }
-            else{
-                return returnTimeStampForTable("info", res, cb);
-            }
+            cb(err, res);
         });
     };
 
@@ -407,13 +382,7 @@ exports.db = (function(){
     out.updatePin_poll = function(userId, name, guid, cb){
         var sql = "UPDATE pin SET name = ?, ts = UNIX_TIMESTAMP() WHERE user = ? AND id = ?";
         connection.query(sql, [name, userId, guid], function (err, res) {
-            if (err) {
-                cb(err, res);
-                console.log("error occured!", err);
-            }
-            else{
-                return returnTimeStampForTable("pin", res, cb);
-            }
+            cb(err, res);
         })
     };
 
@@ -464,13 +433,7 @@ exports.db = (function(){
                     AND EXISTS(SELECT id FROM info WHERE id = ? AND user = ? LIMIT 1); ";
 
         connection.query(sql, [newInfoId, guid, pinId, newInfoId, pinId, userId, newInfoId, userId], function (err, res) {
-            if (err) {
-                cb(err, res);
-                console.log("error occured!", err);
-            }
-            else{
-                return returnTimeStampForTable("pins_info", res, cb);
-            }
+            cb(err, res);
         })
     };
 
@@ -503,13 +466,7 @@ exports.db = (function(){
                     AND NOT EXISTS(SELECT id FROM info i INNER JOIN type t ON t.id = i.type_fk \
                         WHERE i.id = ? AND LCASE(t.name) = 'name' LIMIT 1)";
         connection.query(sql, [guid, userId, guid], function (err, res) {
-            if (err) {
-                cb(err, res);
-                console.log("error occured!", err);
-            }
-            else{
-                return returnTimeStampForTable("info", res, cb);
-            }
+            cb(err, res);
         });
     };
 
@@ -560,18 +517,12 @@ exports.db = (function(){
 
     out.deletePinInfo_poll = function(userId, pinId, infoId, guid, cb){
         var sql = "UPDATE pins_info \
-                    SET is_deleted = 1 AND ts = UNIX_TIMESTAMP() \
+                    SET is_deleted = 1, ts = UNIX_TIMESTAMP() \
                     WHERE pin = ? AND info = ? AND id = ? \
                     AND EXISTS(SELECT id FROM pin WHERE id = ? AND user = ? LIMIT 1) \
                     AND EXISTS(SELECT id FROM info WHERE id = ? AND user = ? LIMIT 1)";
         connection.query(sql, [pinId, infoId, guid, pinId, userId, infoId, userId], function(err, res){
-            if (err) {
-                cb(err, res);
-                console.log("error occured!", err);
-            }
-            else{
-                return returnTimeStampForTable("pins_info", res, cb);
-            }
+            cb(err, res);
         });
     };
 
