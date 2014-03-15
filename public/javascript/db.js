@@ -388,7 +388,7 @@ exports.db = (function(){
 
     out.updatePinContact = function(userId, contactId, canUpdate, cb){
         canUpdate = canUpdate === '1' ? 1 : 0;
-        var sql = "UPDATE contact c SET c.can_update = ? \
+        var sql = "UPDATE contact c SET c.can_update = ?, ts = UNIX_TIMESTAMP() \
                     WHERE c.id = ? \
                     AND EXISTS(SELECT p.id FROM pin p WHERE p.user = ? AND p.id = c.pin LIMIT 1)";
 
@@ -462,10 +462,14 @@ exports.db = (function(){
     out.deleteInfo_poll = function(userId, guid, cb){
         //TODO: ensure info being deleted isn't connected to a PIN
         //Names already used with PINs can only be Updated and not deleted
-        var sql = "UPDATE info SET is_deleted = 1 AND ts = UNIX_TIMESTAMP() WHERE id = ? AND user = ? \
-                    AND NOT EXISTS(SELECT id FROM info i INNER JOIN type t ON t.id = i.type_fk \
-                        WHERE i.id = ? AND LCASE(t.name) = 'name' LIMIT 1)";
-        connection.query(sql, [guid, userId, guid], function (err, res) {
+        var sql = "CREATE TEMPORARY TABLE temp_info SELECT i.id FROM info i INNER JOIN type t ON t.id = i.type_fk \
+                    INNER JOIN pins_info pi ON pi.info = i.id \
+                    WHERE i.id = ? AND LCASE(t.name) = 'name' LIMIT 1; \
+                    UPDATE info SET is_deleted = 1, ts = UNIX_TIMESTAMP() WHERE id = ? AND user = ? \
+                    AND NOT EXISTS(SELECT * FROM temp_info); \
+                    DROP TABLE temp_info;";
+        connection.query(sql, [guid, guid, userId], function (err, res) {
+
             cb(err, res);
         });
     };
@@ -495,6 +499,7 @@ exports.db = (function(){
                 UPDATE pins_info SET is_deleted = 1, ts = UNIX_TIMESTAMP() WHERE EXISTS(SELECT id FROM my_ip.pin p WHERE p.user = ? AND p.id = ? LIMIT 1) AND pin = ?; \
                 UPDATE pin SET is_deleted = 1, ts = UNIX_TIMESTAMP() WHERE id = ? AND user = ?;";
         connection.query(sql, [userId, pinId, pinId, userId, pinId, pinId, pinId, userId], function (err, res) {
+            console.log(res);
             if (err) {
                 console.log("error occured!", err);
             }

@@ -636,10 +636,10 @@ app.delete("/api/delete/pin", function(req, res){
 
 app.delete("/api/poll/delete/pin", function(req, res){
     //{user_id:1, server_id:7}
-    var pinId = req.body.pin_id,
+    var pinId = req.body.guid,
         userId = req.body.user_id;
 
-    db.deletePinInfo_poll(userId, pinId, function(err, result){
+    db.deletePin_poll(userId, pinId, function (err, result) {
         if(err){
             res.status(404).send({error:'An error occured deleting information'});
         }
