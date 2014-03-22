@@ -255,19 +255,18 @@ app.get("/api/get/infocount", function(req, res){
     });
 });
 
-//==========POST=================
-
 //server first
-app.post("/api/post/register", function(req, res){
-    //{username:, email:, password:}
-    var username = req.body.username,
-        password = req.body.password,
-        email = req.body.email;
-    
-    db.insertUser(username, email, password, function(err, result){
+app.get("/api/get/register", function (req, res) {
+    var username = req.query.username,
+        email = req.query.email,
+        password = req.query.password;
+
+    db.insertUser(username, email, password, function (err, result) {
         res.send(result);
     });
 });
+
+//==========POST=================
 
 app.post("/api/post/info", function (req, res) {
     //{type:1, user_id:3,info:"svenroy", detail:"facebook.com/svenroy"}
@@ -375,10 +374,10 @@ app.post("/api/post/contact", function(req, res){
 
     db.insertContact(userId, pin, function(err, result){
         if(err){
-            res.status(404).send({error:'An error occured deleting information'});
+            res.status(404).send(result);
         }
-        else{
-            res.status(200).send({ success: 'true', result: result.affectedRows });
+        else {
+            res.status(200).send(result);
         }
     });
 });
