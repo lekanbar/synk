@@ -110,6 +110,19 @@ exports.db = (function(){
         });
     };
 
+    out.getUserContactAndContactInfo_poll = function (userId, timestamp, cb) {
+        var sql = "SELECT c.id AS 'contact_id', i.id AS 'info_id', i.ts, i.is_deleted FROM contact c \
+                    INNER JOIN pins_info pi ON pi.pin = c.pin \
+                    INNER JOIN info i ON i.id = pi.info \
+                    WHERE c.user = ? and i.ts > ?";
+        connection.query(sql, [userId, timestamp], function(err, res){
+            if(err){
+                console.log("error occured!", err);
+            }
+            cb(err, res);
+        });
+    };
+
     out.getUserConnectedContacts_poll = function(userId, timestamp, cb){
         var sql = "SELECT c.id, c.pin, u.id as 'user_id', u.username, c.can_update, c.is_deleted, c.ts \
                     FROM contact c \

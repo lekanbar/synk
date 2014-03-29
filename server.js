@@ -101,6 +101,21 @@ app.get("/api/poll/get/clientcontactinfo", function(req, res){
     });
 });
 
+app.get("/api/poll/get/clientcontactandcontactinfo", function (req, res) {
+    var userId = req.query.user_id,
+        timeStamp = req.query.time_stamp;
+
+    db.getUserContactAndContactInfo_poll(userId, timeStamp, function (err, result) {
+        if (err) {
+            console.log("error occured with: ", err);
+            res.send(err);
+        }
+        else {
+            res.send(result);
+        }
+    });
+});
+
 app.get("/api/poll/get/clientconnectedcontacts", function(req, res){
     var userId = req.query.user_id,
         timeStamp = req.query.time_stamp;
