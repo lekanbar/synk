@@ -98,7 +98,7 @@ exports.db = (function(){
     };
 
     out.getUserContactsInfo_poll = function(userId, timestamp, cb){
-        var sql = "SELECT i.id, c.id as 'contact_id', i.type_fk, i.info, i.more, i.ts FROM info i \
+        var sql = "SELECT i.id, c.id as 'contact_id', i.type_fk, i.info, i.more, i.ts, i.is_deleted FROM info i \
                     INNER JOIN pins_info pi ON pi.info = i.id \
                     INNER JOIN contact c ON c.pin = pi.pin \
                     WHERE c.user = ? AND i.ts > ?";
@@ -111,12 +111,22 @@ exports.db = (function(){
     };
 
     out.getUserContactAndContactInfo_poll = function (userId, timestamp, cb) {
-        var sql = "SELECT c.id AS 'contact_id', i.id AS 'info_id', i.ts, i.is_deleted FROM contact c \
+        /*var sql = "SELECT c.id AS 'contact_id', i.id AS 'info_id', i.ts, i.is_deleted FROM contact c \
                     INNER JOIN pins_info pi ON pi.pin = c.pin \
                     INNER JOIN info i ON i.id = pi.info \
                     WHERE c.user = ? and i.ts > ?";
         connection.query(sql, [userId, timestamp], function(err, res){
             if(err){
+                console.log("error occured!", err);
+            }
+            cb(err, res);
+        });*/
+        var sql = "SELECT pi.id, c.id AS 'contact_id', i.id AS 'info_id', pi.ts, pi.is_deleted FROM contact c \
+                    INNER JOIN pins_info pi ON pi.pin = c.pin \
+                    INNER JOIN info i ON i.id = pi.info \
+                    WHERE c.user = ? AND pi.ts > ? AND c.is_deleted = 0";
+        connection.query(sql, [userId, timestamp], function (err, res) {
+            if (err) {
                 console.log("error occured!", err);
             }
             cb(err, res);
@@ -350,7 +360,8 @@ exports.db = (function(){
 
     out.insertContact = function(userId, pin, cb){
 
-        /* This sql statement checks the following conditions (in order) before adding a pin
+        /* 
+            This sql statement checks the following conditions (in order) before adding a pin
             1. That the PIN exists
             2. The the PIN is not owned by the same user
             3. That the PIN does not already exist for the user as a contact
@@ -360,7 +371,7 @@ exports.db = (function(){
                     WHERE EXISTS (SELECT id FROM pin WHERE LCASE(pin) = LCASE(?) AND user <> ? LIMIT 1) \
                     AND NOT EXISTS (SELECT c.id FROM contact c \
 				        INNER JOIN pin p ON p.id = c.pin \
-				        WHERE LCASE(p.pin) = LCASE(?) AND c.user = ? LIMIT 1) \
+				        WHERE LCASE(p.pin) = LCASE(?) AND c.user = ? AND c.is_deleted = 0 LIMIT 1) \
                     AND EXISTS(SELECT pi.id FROM pins_info pi \
                         INNER JOIN info i ON i.id = pi.info \
                         WHERE pi.pin = (SELECT id FROM pin WHERE LCASE(pin) = LCASE(?) LIMIT 1) \
@@ -372,9 +383,12 @@ exports.db = (function(){
             }
             else {
                 sql = "SELECT MIN(i.ts) as 'ts' FROM info i INNER JOIN pins_info pi ON pi.info = i.id \
-                        INNER JOIN my_ip.pin p ON p.id = pi.pin \
+                        INNER JOIN pin p ON p.id = pi.pin \
+                        WHERE LCASE(p.pin) = LCASE(?) \
+                        UNION SELECT MIN(pi.ts) FROM pins_info pi \
+                        INNER JOIN pin p ON p.id = pi.pin \
                         WHERE LCASE(p.pin) = LCASE(?);";
-                connection.query(sql, pin, function (err2, res2) {
+                connection.query(sql, [pin, pin], function (err2, res2) {
                     cb(err2, res2);
                 });
             }
