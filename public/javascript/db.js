@@ -33,7 +33,7 @@ exports.db = (function(){
 
     //=====myIP QUERIES=======
 
-    out.insertUser = function (username, email, password, cb) {
+    out.insertUser = function (username, email, password, defaultName, cb) {
         var sql = "SELECT '1' AS 'table' FROM user WHERE LCASE(?) = LCASE(username) \
                     UNION SELECT '2' FROM user WHERE LCASE(?) = LCASE(email)";
         connection.query(sql, [username, email], function (err1, results1) {
@@ -42,7 +42,13 @@ exports.db = (function(){
             }
             else {
                 sql = "INSERT INTO user (id, username, email, pword, reg_date) \
-                        SELECT * FROM (SELECT UUID(), ?, ?, ?, NOW()) AS tmp ";
+                        SELECT * FROM (SELECT UUID(), ?, ?, ?, NOW()) AS tmp; \
+                        insert into info select * from (select UUID(), \
+	                        (select u.id from user u where lcase(u.username) = ? limit 1), \
+	                        (select t.id from type t where lcase(t.name) = 'name'), \
+	                        ?, '', unix_timestamp(), 0) as tmp2 \
+                            where exists(select u.id from user u where lcase(u.username) = lcase(?))";
+
                 connection.query(sql, [username, email, password], function (err2, results2) {
                     sql = "SELECT id FROM user WHERE username = ? AND email = ? LIMIT 1";
                     connection.query(sql, [username, email], function (err3, results3) {
@@ -324,8 +330,15 @@ exports.db = (function(){
 
         var sql = "INSERT INTO pin SELECT * FROM (SELECT UUID(), ? as 'user', ? as 'pin', ? as 'name', ? as 'photo_path', UNIX_TIMESTAMP() as 'ts', 0) AS tmp \
                     WHERE EXISTS (SELECT id FROM user WHERE id = ?) \
-                    AND NOT EXISTS (SELECT id FROM pin WHERE LCASE(pin) = LCASE(?)) LIMIT 1";
-        connection.query(sql, [userId, pin, name, imagePath, userId, pin], function (err, res) {
+                    AND NOT EXISTS (SELECT id FROM pin WHERE LCASE(pin) = LCASE(?)) LIMIT 1; \
+                    INSERT INTO pins_info SELECT * FROM ( \
+	                    SELECT UUID() AS 'id', \
+	                    (SELECT p.id FROM pin p WHERE LCASE(p.pin) = LCASE(?) LIMIT 1) AS 'pin', \
+	                    (SELECT i.id FROM info i INNER JOIN type t ON i.type_fk = t.id WHERE i.user = ? AND LCASE(t.name) = 'name' LIMIT 1) AS 'info', \
+	                    UNIX_TIMESTAMP() AS 'ts', 0) AS tmp \
+	                    WHERE EXISTS(SELECT i.id AS 'info' FROM info i INNER JOIN type t ON i.type_fk = t.id WHERE i.user = ? AND LCASE(t.name) = 'name' LIMIT 1)";
+
+        connection.query(sql, [userId, pin, name, imagePath, userId, pin, pin, userId, userId], function (err, res) {
             if (err) {
                 console.log("error occured!", err);
             }
@@ -508,14 +521,17 @@ exports.db = (function(){
     out.deleteInfo_poll = function(userId, guid, cb){
         //TODO: ensure info being deleted isn't connected to a PIN
         //Names already used with PINs can only be Updated and not deleted
-        var sql = "CREATE TEMPORARY TABLE temp_info SELECT i.id FROM info i INNER JOIN type t ON t.id = i.type_fk \
+        var sql = "SET @t = (SELECT COUNT(i.id) FROM info i INNER JOIN type t ON t.id = i.type_fk WHERE LCASE(t.name) = 'name' \
+                    AND EXISTS(SELECT i.id FROM info i INNER JOIN type t ON t.id  = i.type_fk \
+		            WHERE i.id = ? AND LCASE(t.name) = 'name') AND i.user = ?); \
+                    CREATE TEMPORARY TABLE temp_info SELECT i.id FROM info i INNER JOIN type t ON t.id = i.type_fk \
                     INNER JOIN pins_info pi ON pi.info = i.id \
                     WHERE i.id = ? AND LCASE(t.name) = 'name' LIMIT 1; \
                     UPDATE info SET is_deleted = 1, ts = UNIX_TIMESTAMP() WHERE id = ? AND user = ? \
-                    AND NOT EXISTS(SELECT * FROM temp_info); \
+                    AND NOT EXISTS(SELECT * FROM temp_info) \
+                    AND @t <> 1; \
                     DROP TABLE temp_info;";
-        connection.query(sql, [guid, guid, userId], function (err, res) {
-
+        connection.query(sql, [guid, userId, guid, guid, userId], function (err, res) {
             cb(err, res);
         });
     };

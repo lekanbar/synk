@@ -275,8 +275,9 @@ app.get("/api/get/register", function (req, res) {
     var username = req.query.username,
         email = req.query.email,
         password = req.query.password;
+        defaultName = req.query.name;
 
-    db.insertUser(username, email, password, function (err, result) {
+    db.insertUser(username, email, password, defaultName, function (err, result) {
         res.send(result);
     });
 });
@@ -619,7 +620,7 @@ app.delete("/api/delete/info", function (req, res){
 
 app.delete("/api/poll/delete/info", function (req, res){
     //{user_id:3, server_id:4}
-    //NOTE: cannot delete last 'Name' info if connected to PINs
+    //NOTE: cannot delete 'Name' info if connected to PINs or is last 'Name' info
     var guid = req.body.guid,
         userId = req.body.user_id;
 
