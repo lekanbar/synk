@@ -116,6 +116,31 @@ app.get("/api/poll/get/clientcontactandcontactinfo", function (req, res) {
     });
 });
 
+app.get("/api/poll/get/pinimage", function (req, res) {
+    //api/get/pins/?pin_id=3&user_id=1
+    var userId = req.query.user_id,
+        pinId = req.query.pin_id,
+        photoPath = req.query.photo_path;
+
+    db.getPinPhoto(userId, pinId, function (err, result) {
+        if (result.length >= 1) {
+            fs.exists(__dirname + '/public/uploads/' + photoPath, function (exists) {
+                if (exists) {
+                    res.send();
+                }
+                else {
+                    res.header("content-disposition", "attachment; filename='" + result[0].photo_path+"'");
+                    res.sendfile(__dirname + '/public/uploads/' + result[0].photo_path);
+                }
+            });
+            
+        }
+        else {
+            res.status(404).send();
+        }
+    });
+});
+
 app.get("/api/poll/get/clientconnectedcontacts", function(req, res){
     var userId = req.query.user_id,
         timeStamp = req.query.time_stamp;
