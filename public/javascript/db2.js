@@ -2,7 +2,16 @@
 
 exports.db2 = (function () {
     var out = {};
-    var connStr = 'Data Source=SVENROY-PC;Initial Catalog=atOne;Persist Security Info=True;User ID=sa;Password=g1n@ndt0n1c';
+    var connStr = 'Data Source=SVENROY-PC;Initial Catalog=atOne;Persist Security Info=True;User ID=sa;Password=sa';
+    //var connStr = 'Server=tcp:olowchowf1.database.windows.net,1433;Database=AtOneDB;User ID=svenroy@olowchowf1;Password=sv3Nroy7;Trusted_Connection=False;Encrypt=True;Connection Timeout=30;';
+
+    out.insertTypeOnStartUp = edge.func('sql', {
+        source: function () {/*
+            insert into type select @id, @name, @icon_name, @phone_url
+            where not exists (select top 1 id from type where id = @id)
+        */},
+        connectionString: connStr
+    });
 
     out.getUserInfo_poll = edge.func('sql', {
         source: function () {/*
