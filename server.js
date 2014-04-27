@@ -1,4 +1,3 @@
-
 var express = require('express'),
     http = require('http'),
     app = express(),
@@ -19,18 +18,25 @@ app.use(express.errorHandler());
 
 // development only
 if ('development' == app.get('env')) {
-  app.use(express.errorHandler());
+    app.use(express.errorHandler());
 }
 
 app.get("/index", function (req, res) {
-    res.send("Hello world");
+    db2.getTypes(null, function (err, result) {
+        if (err) {
+            res.send(err);
+        }
+        else {
+            res.send("Welcome to '@One'. " + result.length + " types");
+        }
+    });
 });
 
 //=====================POLL GET==============================
-app.get("/api/poll/get/clientpersonalinfo", function (req, res){
-    var data = { 
-        userId: req.query.user_id, 
-        timestamp: req.query.time_stamp 
+app.get("/api/poll/get/clientpersonalinfo", function (req, res) {
+    var data = {
+        userId: req.query.user_id,
+        timestamp: req.query.time_stamp
     };
     db2.getUserInfo_poll(data, function (err, result) {
         if (err) {
@@ -42,10 +48,10 @@ app.get("/api/poll/get/clientpersonalinfo", function (req, res){
     });
 });
 
-app.get("/api/poll/get/clientpins", function (req, res){
-    var data = { 
-        userId: req.query.user_id, 
-        timestamp: req.query.time_stamp 
+app.get("/api/poll/get/clientpins", function (req, res) {
+    var data = {
+        userId: req.query.user_id,
+        timestamp: req.query.time_stamp
     };
 
     db2.getUserPins_poll(data, function (err, result) {
@@ -58,7 +64,7 @@ app.get("/api/poll/get/clientpins", function (req, res){
     });
 });
 
-app.get("/api/poll/get/clientpininfo", function(req, res){
+app.get("/api/poll/get/clientpininfo", function (req, res) {
     var data = {
         userId: req.query.user_id,
         timestamp: req.query.time_stamp
@@ -73,10 +79,10 @@ app.get("/api/poll/get/clientpininfo", function(req, res){
     });
 });
 
-app.get("/api/poll/get/clientcontacts", function (req, res){
-    var data = { 
-        userId: req.query.user_id, 
-        timestamp: req.query.time_stamp 
+app.get("/api/poll/get/clientcontacts", function (req, res) {
+    var data = {
+        userId: req.query.user_id,
+        timestamp: req.query.time_stamp
     };
     db2.getUserContacts_poll(data, function (err, result) {
         if (err) {
@@ -85,10 +91,10 @@ app.get("/api/poll/get/clientcontacts", function (req, res){
         else {
             res.send(result);
         }
-    });   
+    });
 });
 
-app.get("/api/poll/get/clientcontactinfo", function(req, res){
+app.get("/api/poll/get/clientcontactinfo", function (req, res) {
     var data = {
         userId: req.query.user_id,
         timestamp: req.query.time_stamp
@@ -143,7 +149,7 @@ app.get("/api/poll/get/pinimage", function (req, res) {
     });
 });
 
-app.get("/api/poll/get/clientconnectedcontacts", function(req, res){
+app.get("/api/poll/get/clientconnectedcontacts", function (req, res) {
     var data = {
         userId: req.query.user_id,
         timestamp: req.query.time_stamp
@@ -158,7 +164,7 @@ app.get("/api/poll/get/clientconnectedcontacts", function(req, res){
     });
 });
 
-app.get("/api/get/types", function (req, res){
+app.get("/api/get/types", function (req, res) {
     db2.getTypes(null, function (err, result) {
         res.send(result);
     });
@@ -166,7 +172,7 @@ app.get("/api/get/types", function (req, res){
 
 //==========GET=================
 
-app.get("/api/get/login", function(req, res){
+app.get("/api/get/login", function (req, res) {
     var data = {
         login: req.query.login,
         password: req.query.password
@@ -243,22 +249,22 @@ app.post("/api/poll/post/info", function (req, res) {
             }
         });
     }
-    else{
-        res.send({success: false, message:'invalid data'}); 
+    else {
+        res.send({ success: false, message: 'invalid data' });
     }
 });
 
 //server first
-app.post("/api/post/pin", function(req, res){
-    var data = { 
-        user: req.body.user_id, 
-        pin: getPin(), 
-        name: req.body.name, 
-        imagePath: "", 
-        timestamp: getTimestamp() 
+app.post("/api/post/pin", function (req, res) {
+    var data = {
+        user: req.body.user_id,
+        pin: getPin(),
+        name: req.body.name,
+        imagePath: "",
+        timestamp: getTimestamp()
     };
 
-    if(req.files && req.files.image){
+    if (req.files && req.files.image) {
         data.imagePath = req.files.image.path.split('\\');
         data.imagePath = data.imagePath[(data.imagePath.length - 1)];
     }
@@ -273,7 +279,7 @@ app.post("/api/post/pin", function(req, res){
     });
 });
 
-app.post("/api/poll/post/pininfo", function(req, res){
+app.post("/api/poll/post/pininfo", function (req, res) {
     var data = {
         guid: req.body.guid,
         userId: req.body.user_id,
@@ -292,7 +298,7 @@ app.post("/api/poll/post/pininfo", function(req, res){
 });
 
 //server first
-app.post("/api/post/contact", function(req, res){
+app.post("/api/post/contact", function (req, res) {
     var data = {
         userId: req.body.user_id,
         pin: req.body.pin,
@@ -324,7 +330,7 @@ app.post("/api/post/contact", function(req, res){
 
 //==========PUT=================
 
-app.put("/api/poll/put/info", function(req, res){
+app.put("/api/poll/put/info", function (req, res) {
     //{user_id:3,info:"svenroy", detail:"facebook.com/svenroy", server_id:4}
     var data = {
         guid: req.body.guid,
@@ -333,7 +339,7 @@ app.put("/api/poll/put/info", function(req, res){
         detail: req.body.detail,
         timestamp: getTimestamp()
     };
-    if(data.info !== ""){
+    if (data.info !== "") {
         db2.updateInfo_poll(data, function (err, result) {
             if (err) {
                 res.status(404).send({ success: 'false', error: 'An error occured updating information' });
@@ -343,12 +349,12 @@ app.put("/api/poll/put/info", function(req, res){
             }
         });
     }
-    else{
-        res.status(404).send({success:'false', error:'An error occured updating information'});
+    else {
+        res.status(404).send({ success: 'false', error: 'An error occured updating information' });
     }
 });
 
-app.put("/api/poll/put/pin", function(req, res){
+app.put("/api/poll/put/pin", function (req, res) {
     var data = {
         userId: req.body.user_id,
         name: req.body.name,
@@ -356,22 +362,22 @@ app.put("/api/poll/put/pin", function(req, res){
         timestamp: getTimestamp()
     };
     db2.updatePin_poll(data, function (err, result) {
-        if(err){
-            res.status(404).send({success:'false', error:'An error occured updating information'});
+        if (err) {
+            res.status(404).send({ success: 'false', error: 'An error occured updating information' });
         }
-        else{
+        else {
             res.status(200).send(result);
         }
     });
 });
 
 //server first
-app.put("/api/put/pincontact", function(req, res){
-    var data = { 
-        userId: req.body.user_id, 
-        contactId: req.body.contact_id, 
-        canUpdate: req.body.can_update, 
-        timestamp: getTimestamp() 
+app.put("/api/put/pincontact", function (req, res) {
+    var data = {
+        userId: req.body.user_id,
+        contactId: req.body.contact_id,
+        canUpdate: req.body.can_update,
+        timestamp: getTimestamp()
     };
 
     db2.updatePinContact(data, function (err, result) {
@@ -384,15 +390,15 @@ app.put("/api/put/pincontact", function(req, res){
     });
 });
 
-app.put("/api/poll/put/pininfo", function(req, res){
+app.put("/api/poll/put/pininfo", function (req, res) {
     //this method is only used to change the 'Name' info associated with a PIN
     //a valid PIN must have only ONE name entry
-    var data = { 
-        guid: req.body.guid, 
-        userId: req.body.user_id, 
-        pinId: req.body.pin_id, 
-        infoId: req.body.info_id, 
-        timestamp: getTimestamp() 
+    var data = {
+        guid: req.body.guid,
+        userId: req.body.user_id,
+        pinId: req.body.pin_id,
+        infoId: req.body.info_id,
+        timestamp: getTimestamp()
     };
 
     db2.updatePinInfo_poll(data, function (err, result) {
@@ -408,9 +414,9 @@ app.put("/api/poll/put/pininfo", function(req, res){
 //server first
 app.put("/api/put/pinPhoto/remove", function (req, res) {
     //TODO: Delete from directory
-    var data = { 
-        userId: req.body.user_id, 
-        pinId: req.body.pin_id 
+    var data = {
+        userId: req.body.user_id,
+        pinId: req.body.pin_id
     };
     db2.deletePinPhoto(data, function (err, result) {
         if (err) {
@@ -423,7 +429,7 @@ app.put("/api/put/pinPhoto/remove", function (req, res) {
 });
 
 //server first
-app.post("/api/put/pinPhoto/change", function(req, res){
+app.post("/api/put/pinPhoto/change", function (req, res) {
     //{user_id:1, pin_id:3}
     var data = {
         userId: req.body.user_id,
@@ -431,29 +437,29 @@ app.post("/api/put/pinPhoto/change", function(req, res){
         photoPath: ""
     };
 
-    if(req.files && req.files.image){
+    if (req.files && req.files.image) {
         data.photoPath = req.files.image.path.split('\\');
         data.photoPath = data.photoPath[(data.photoPath.length - 1)];
     }
 
     if (data.photoPath !== "") {
-        db2.updatePinPhoto(data, function(err, result){
-            if(err){
-                res.status(404).send({error:'An error occured updating information'});
+        db2.updatePinPhoto(data, function (err, result) {
+            if (err) {
+                res.status(404).send({ error: 'An error occured updating information' });
             }
-            else{
-                res.send({success:'true'});
+            else {
+                res.send({ success: 'true' });
             }
         });
     }
-    else{
-        res.status(404).send({error:'No data received!'});
+    else {
+        res.status(404).send({ error: 'No data received!' });
     }
 });
 
 //==========DELETE=================
 
-app.delete("/api/poll/delete/pinInfo", function(req, res){
+app.delete("/api/poll/delete/pinInfo", function (req, res) {
     var data = {
         userId: req.body.user_id,
         pinId: req.body.pin_id,
@@ -471,12 +477,12 @@ app.delete("/api/poll/delete/pinInfo", function(req, res){
     });
 });
 
-app.delete("/api/poll/delete/info", function (req, res){
+app.delete("/api/poll/delete/info", function (req, res) {
     //{user_id:3, server_id:4}
     //NOTE: cannot delete 'Name' info if connected to PINs or is last 'Name' info
     var data = {
-        userId: req.body.user_id, 
-        guid: req.body.guid, 
+        userId: req.body.user_id,
+        guid: req.body.guid,
         timestamp: getTimestamp()
     };
 
@@ -490,11 +496,11 @@ app.delete("/api/poll/delete/info", function (req, res){
     });
 });
 
-app.delete("/api/poll/delete/pin", function(req, res){
-    var data = { 
-        userId: req.body.user_id, 
-        pinId: req.body.guid, 
-        timestamp: getTimestamp() 
+app.delete("/api/poll/delete/pin", function (req, res) {
+    var data = {
+        userId: req.body.user_id,
+        pinId: req.body.guid,
+        timestamp: getTimestamp()
     };
 
     db2.deletePin_poll(data, function (err, result) {
@@ -507,13 +513,13 @@ app.delete("/api/poll/delete/pin", function(req, res){
     });
 });
 
-app.delete("/api/poll/delete/contact", function(req, res){
+app.delete("/api/poll/delete/contact", function (req, res) {
     var data = {
         userId: req.body.user_id,
         guid: req.body.guid,
         timestamp: getTimestamp()
     };
-    
+
     db2.deleteContact_poll(data, function (err, result) {
         if (err) {
             res.status(404).send({ error: 'An error occured deleting information' });
@@ -526,8 +532,8 @@ app.delete("/api/poll/delete/contact", function(req, res){
 
 //==========HELPERS=================
 
-var getPin = function(){
-    var now = new Date(); 
+var getPin = function () {
+    var now = new Date();
     return Math.floor(Math.random() * 10) + parseInt(now.getTime()).toString(36).toUpperCase();
 }
 
@@ -538,3 +544,22 @@ var getTimestamp = function () {
 //==========SERVER=================
 app.listen(app.get('port'));
 console.log('Express server listening on port ' + app.get('port'));
+var types = [{ id: '1', name: 'Address', icon_name: '198,24,0', phone_url: '' },
+{ id: '2', name: 'BBM', icon_name: '198,24,0', phone_url: '' },
+{ id: '3', name: 'Email', icon_name: '198,24,0', phone_url: 'mailto:' },
+{ id: '4', name: 'Facebook', icon_name: '59,89,152', phone_url: 'fb:' },
+{ id: '5', name: 'Instagram', icon_name: '47,11,11', phone_url: '' },
+{ id: '6', name: 'Name', icon_name: '198,24,0', phone_url: '' },
+{ id: '7', name: 'Phone', icon_name: '140,198,63', phone_url: 'tel:,sms:,facetime:,' },
+{ id: '8', name: 'Pinterest', icon_name: '201,34,40', phone_url: 'pinit12:' },
+{ id: '9', name: 'Skype', icon_name: '18,165,244', phone_url: 'skype:' },
+{ id: '10', name: 'Twitter', icon_name: '29,202,255', phone_url: 'twitter:' },
+{ id: '11', name: 'Whatsapp', icon_name: '198,24,0', phone_url: '' }];
+
+types.forEach(function (data) {
+    db2.insertTypeOnStartUp(data, function (err, result) {
+        if (err) {
+            throw err;
+        }
+    });
+});
