@@ -2,9 +2,11 @@ var express = require('express'),
     http = require('http'),
     app = express(),
     //db = require('./public/javascript/db').db,
-    db2 = require('./public/javascript/db2').db2,
+    //db2 = require('./public/javascript/db2').db2,
+    db2 = require('./server/db2').db2,
     path = require('path'),
-    fs = require('fs');
+    fs = require('fs'),
+    oauthserver = require('node-oauth2-server');
 
 // all environments
 app.set('port', process.env.PORT || 3000);
@@ -13,13 +15,24 @@ app.use(express.json());
 app.use(express.urlencoded());
 app.use(express.methodOverride());
 
+app.oauth = oauthserver({
+    model: {}, // See below for specification
+    grants: ['password'],
+    debug: true
+});
 app.use(express.bodyParser({ keepExtensions: true, uploadDir: __dirname + '/public/uploads' }));
 app.use(express.errorHandler());
+
+app.all('/oauth/token', app.oauth.grant());
 
 // development only
 if ('development' == app.get('env')) {
     app.use(express.errorHandler());
 }
+
+app.get('/authorize', app.oauth.authorise(), function (req, res) {
+    res.send('Secret area');
+});
 
 app.get("/index", function (req, res) {
     db2.getTypes(null, function (err, result) {
@@ -542,6 +555,8 @@ var getTimestamp = function () {
 };
 
 //==========SERVER=================
+
+app.use(app.oauth.errorHandler());
 app.listen(app.get('port'));
 console.log('Express server listening on port ' + app.get('port'));
 var types = [{ id: '1', name: 'Address', icon_name: '198,24,0', phone_url: '' },
