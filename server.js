@@ -1,8 +1,6 @@
 var express = require('express'),
     http = require('http'),
     app = express(),
-    //db = require('./public/javascript/db').db,
-    //db2 = require('./public/javascript/db2').db2,
     db2 = require('./server/db2').db2,
     path = require('path'),
     fs = require('fs'),
@@ -42,7 +40,6 @@ app.get("/api/poll/get/clientpersonalinfo", function (req, res) {
     var data = {
         userId: req.query.user_id,
         timestamp: req.query.time_stamp,
-        token_e: req.query.token,
         token_d: decrypt(req.query.token)
     };
     db2.getUserInfo_poll(data, function (err, result) {
@@ -59,7 +56,6 @@ app.get("/api/poll/get/clientpins", function (req, res) {
     var data = {
         userId: req.query.user_id,
         timestamp: req.query.time_stamp,
-        token_e: req.query.token,
         token_d: decrypt(req.query.token)
     };
 
@@ -77,7 +73,6 @@ app.get("/api/poll/get/clientpininfo", function (req, res) {
     var data = {
         userId: req.query.user_id,
         timestamp: req.query.time_stamp,
-        token_e: req.query.token,
         token_d: decrypt(req.query.token)
     };
     db2.getUserPinsInfo_poll(data, function (err, result) {
@@ -94,7 +89,6 @@ app.get("/api/poll/get/clientcontacts", function (req, res) {
     var data = {
         userId: req.query.user_id,
         timestamp: req.query.time_stamp,
-        token_e: req.query.token,
         token_d: decrypt(req.query.token)
     };
     db2.getUserContacts_poll(data, function (err, result) {
@@ -111,7 +105,6 @@ app.get("/api/poll/get/clientcontactinfo", function (req, res) {
     var data = {
         userId: req.query.user_id,
         timestamp: req.query.time_stamp,
-        token_e: req.query.token,
         token_d: decrypt(req.query.token)
     };
     db2.getUserContactsInfo_poll(data, function (err, result) {
@@ -128,7 +121,6 @@ app.get("/api/poll/get/clientcontactandcontactinfo", function (req, res) {
     var data = {
         userId: req.query.user_id,
         timestamp: req.query.time_stamp,
-        token_e: req.query.token,
         token_d: decrypt(req.query.token)
     };
     db2.getUserContactAndContactInfo_poll(data, function (err, result) {
@@ -147,7 +139,6 @@ app.get("/api/poll/get/pinimage", function (req, res) {
         userId: req.query.user_id,
         pinId: req.query.pin_id,
         path: req.query.photo_path,
-        token_e: req.query.token,
         token_d: decrypt(req.query.token)
     };
     db2.getPinPhoto(data, function (err, result) {
@@ -172,7 +163,6 @@ app.get("/api/poll/get/clientconnectedcontacts", function (req, res) {
     var data = {
         userId: req.query.user_id,
         timestamp: req.query.time_stamp,
-        token_e: req.query.token,
         token_d: decrypt(req.query.token)
     };
     db2.getUserConnectedContacts_poll(data, function (err, result) {
@@ -224,7 +214,6 @@ app.get("/api/get/pinimage", function (req, res) {
     var data = {
         userId: req.query.user_id,
         pinId: req.query.pin_id,
-        token_e: req.query.token,
         token_d: decrypt(req.query.token)
     };
     db2.getPinPhoto(data, function (err, result) {
@@ -274,7 +263,6 @@ app.post("/api/poll/post/info", function (req, res) {
         info: req.body.info,
         detail: req.body.detail,
         timestamp: getTimestamp(),
-        token_e: req.body.token,
         token_d: decrypt(req.body.token)
     };
     if (data.info !== "") {
@@ -300,7 +288,6 @@ app.post("/api/post/pin", function (req, res) {
         name: req.body.name,
         imagePath: "",
         timestamp: getTimestamp(),
-        token_e: req.body.token,
         token_d: decrypt(req.body.token)
     };
 
@@ -326,7 +313,6 @@ app.post("/api/poll/post/pininfo", function (req, res) {
         pinId: req.body.pin_id,
         infoId: req.body.info_id,
         timestamp: getTimestamp(),
-        token_e: req.body.token,
         token_d: decrypt(req.body.token)
     };
     db2.insertPinInfo_poll(data, function (err, result) {
@@ -345,7 +331,6 @@ app.post("/api/post/contact", function (req, res) {
         userId: req.body.user_id,
         pin: req.body.pin,
         timestamp: getTimestamp(),
-        token_e: req.body.token,
         token_d: decrypt(req.body.token)
     };
     var def = [{ ts: 0 }];
@@ -382,7 +367,6 @@ app.put("/api/poll/put/info", function (req, res) {
         info: req.body.info,
         detail: req.body.detail,
         timestamp: getTimestamp(),
-        token_e: req.body.token,
         token_d: decrypt(req.body.token)
     };
     if (data.info !== "") {
@@ -406,7 +390,6 @@ app.put("/api/poll/put/pin", function (req, res) {
         name: req.body.name,
         guid: req.body.guid,
         timestamp: getTimestamp(),
-        token_e: req.body.token,
         token_d: decrypt(req.body.token)
     };
     db2.updatePin_poll(data, function (err, result) {
@@ -426,7 +409,6 @@ app.put("/api/put/pincontact", function (req, res) {
         contactId: req.body.contact_id,
         canUpdate: req.body.can_update,
         timestamp: getTimestamp(),
-        token_e: req.body.token,
         token_d: decrypt(req.body.token)
     };
 
@@ -449,7 +431,6 @@ app.put("/api/poll/put/pininfo", function (req, res) {
         pinId: req.body.pin_id,
         infoId: req.body.info_id,
         timestamp: getTimestamp(),
-        token_e: req.body.token,
         token_d: decrypt(req.body.token)
     };
 
@@ -469,7 +450,6 @@ app.put("/api/put/pinPhoto/remove", function (req, res) {
     var data = {
         userId: req.body.user_id,
         pinId: req.body.pin_id,
-        token_e: req.body.token,
         token_d: decrypt(req.body.token)
     };
     db2.deletePinPhoto(data, function (err, result) {
@@ -489,7 +469,6 @@ app.post("/api/put/pinPhoto/change", function (req, res) {
         userId: req.body.user_id,
         pinId: req.body.pin_id,
         photoPath: "",
-        token_e: req.body.token,
         token_d: decrypt(req.body.token)
     };
 
@@ -522,7 +501,6 @@ app.delete("/api/poll/delete/pinInfo", function (req, res) {
         infoId: req.body.info_id,
         guid: req.body.guid,
         timestamp: getTimestamp(),
-        token_e: req.body.token,
         token_d: decrypt(req.body.token)
     };
     db2.deletePinInfo_poll(data, function (err, result) {
@@ -542,7 +520,6 @@ app.delete("/api/poll/delete/info", function (req, res) {
         userId: req.body.user_id,
         guid: req.body.guid,
         timestamp: getTimestamp(),
-        token_e: req.body.token,
         token_d: decrypt(req.body.token)
     };
 
@@ -561,7 +538,6 @@ app.delete("/api/poll/delete/pin", function (req, res) {
         userId: req.body.user_id,
         pinId: req.body.guid,
         timestamp: getTimestamp(),
-        token_e: req.body.token,
         token_d: decrypt(req.body.token)
     };
 
@@ -580,7 +556,6 @@ app.delete("/api/poll/delete/contact", function (req, res) {
         userId: req.body.user_id,
         guid: req.body.guid,
         timestamp: getTimestamp(),
-        token_e: req.body.token,
         token_d: decrypt(req.body.token)
     };
 
