@@ -17,6 +17,7 @@ exports.db2 = (function () {
         source: function () {/*
             SELECT id, type_fk, info, more, ts, is_deleted FROM info WHERE [user] = @userId AND ts > @timestamp
                 AND EXISTS (SELECT TOP 1 * FROM token WHERE Token = @token_e)
+                AND EXISTS (SELECT TOP 1 id FROM [user] WHERE email = @token_d AND id = @userId)
         */},
         connectionString: connStr
     });
@@ -25,6 +26,7 @@ exports.db2 = (function () {
         source: function () {/* 
             SELECT id, pin, name, ts, is_deleted FROM pin WHERE [user] = @userId AND ts > @timestamp
                 AND EXISTS (SELECT TOP 1 * FROM token WHERE Token = @token_e)
+                AND EXISTS (SELECT TOP 1 id FROM [user] WHERE email = @token_d AND id = @userId)
         */},
         connectionString: connStr
     });
@@ -35,6 +37,7 @@ exports.db2 = (function () {
             INNER JOIN pin p ON p.id = pi.pin
             WHERE p.[user] = @userId AND pi.ts > @timestamp
                 AND EXISTS (SELECT TOP 1 * FROM token WHERE Token = @token_e)
+                AND EXISTS (SELECT TOP 1 id FROM [user] WHERE email = @token_d AND id = @userId)
         */},
         connectionString: connStr
     });
@@ -45,6 +48,7 @@ exports.db2 = (function () {
             INNER JOIN pin p ON p.id = c.pin
             WHERE c.[user] = @userId AND c.ts > @timestamp
                 AND EXISTS (SELECT TOP 1 * FROM token WHERE Token = @token_e)
+                AND EXISTS (SELECT TOP 1 id FROM [user] WHERE email = @token_d AND id = @userId)
         */},
         connectionString: connStr
     });
@@ -56,6 +60,8 @@ exports.db2 = (function () {
             INNER JOIN contact c ON c.pin = pi.pin
             WHERE c.[user] = @userId AND i.ts > @timestamp
             AND c.can_update = 1
+                AND EXISTS (SELECT TOP 1 * FROM token WHERE Token = @token_e)
+                AND EXISTS (SELECT TOP 1 id FROM [user] WHERE email = @token_d AND id = @userId)
         */},
         connectionString: connStr
     });
@@ -67,6 +73,7 @@ exports.db2 = (function () {
             INNER JOIN info i ON i.id = pi.info
             WHERE c.[user] = @userId AND pi.ts > @timestamp AND c.is_deleted = 0
                 AND EXISTS (SELECT TOP 1 * FROM token WHERE Token = @token_e)
+                AND EXISTS (SELECT TOP 1 id FROM [user] WHERE email = @token_d AND id = @userId)
         */},
         connectionString: connStr
     });
@@ -78,7 +85,8 @@ exports.db2 = (function () {
             INNER JOIN pin p ON p.id = c.pin
             INNER JOIN [user] u ON u.id = c.[user]
             WHERE p.[user] = @userId AND c.ts > @timestamp
-                AND EXISTS (SELECT TOP 1 * FROM token WHERE Token = @token_e)     
+                AND EXISTS (SELECT TOP 1 * FROM token WHERE Token = @token_e)
+                AND EXISTS (SELECT TOP 1 id FROM [user] WHERE email = @token_d AND id = @userId)     
         */},
         connectionString: connStr
     });
@@ -99,6 +107,7 @@ exports.db2 = (function () {
             INNER JOIN pin p ON p.[user] = u.id
             WHERE u.id = @userId AND p.id = @pinId
                 AND EXISTS (SELECT TOP 1 * FROM token WHERE Token = @token_e)
+                AND EXISTS (SELECT TOP 1 id FROM [user] WHERE email = @token_d AND id = @userId)
         */},
         connectionString: connStr
     });
@@ -143,6 +152,7 @@ exports.db2 = (function () {
             WHERE
 	            EXISTS (SELECT id FROM type WHERE id = @type) AND EXISTS (SELECT id FROM [user] WHERE id = @user) 
                 AND EXISTS (SELECT TOP 1 * FROM token WHERE Token = @token_e)
+                AND EXISTS (SELECT TOP 1 id FROM [user] WHERE email = @token_d AND id = @user)
         */},
         connectionString: connStr
     });
@@ -152,14 +162,16 @@ exports.db2 = (function () {
             INSERT INTO pin SELECT CAST(NEWID() AS NCHAR(36)), @user, @pin, @name, @imagePath, @timestamp, 0
             WHERE
                 EXISTS (SELECT id FROM [user] WHERE id = @user) AND NOT EXISTS (SELECT id FROM pin WHERE LOWER(pin) = LOWER(@pin))
-                AND EXISTS (SELECT TOP 1 * FROM token WHERE Token = @token_e);
+                AND EXISTS (SELECT TOP 1 * FROM token WHERE Token = @token_e)
+                AND EXISTS (SELECT TOP 1 id FROM [user] WHERE email = @token_d AND id = @user);
 
             INSERT INTO pins_info SELECT CAST(NEWID() AS NCHAR(36)), (SELECT TOP 1 p.id FROM pin p WHERE LOWER(p.pin) = LOWER(@pin)),
                                 (SELECT TOP 1 i.id FROM info i INNER JOIN type t ON i.type_fk = t.id WHERE i.[user] = @user AND LOWER(t.name) = 'name'),
                                 @timestamp, 0
             WHERE
                 EXISTS(SELECT TOP 1 i.id FROM info i INNER JOIN type t ON i.type_fk = t.id WHERE i.[user] = @user AND LOWER(t.name) = 'name')
-                AND EXISTS (SELECT TOP 1 * FROM token WHERE Token = @token_e); 
+                AND EXISTS (SELECT TOP 1 * FROM token WHERE Token = @token_e)
+                AND EXISTS (SELECT TOP 1 id FROM [user] WHERE email = @token_d AND id = @user); 
         */},
         connectionString: connStr
     });
@@ -171,7 +183,8 @@ exports.db2 = (function () {
 	            EXISTS(SELECT TOP 1 id FROM pin WHERE id = @pinId AND [user] = @userId AND is_deleted = 0)
 	            AND EXISTS(SELECT TOP 1 id FROM info WHERE id = @infoId AND [user] = @userId AND is_deleted = 0)
 	            AND NOT EXISTS(SELECT TOP 1 id FROM pins_info WHERE pin = @pinId AND info = @infoId AND is_deleted = 0)  
-                AND EXISTS (SELECT TOP 1 * FROM token WHERE Token = @token_e);
+                AND EXISTS (SELECT TOP 1 * FROM token WHERE Token = @token_e)
+                AND EXISTS (SELECT TOP 1 id FROM [user] WHERE email = @token_d AND id = @userId);
         */},
         connectionString: connStr
     });
@@ -188,7 +201,8 @@ exports.db2 = (function () {
                     INNER JOIN info i ON i.id = pi.info
                     WHERE pi.pin = (SELECT TOP 1 id FROM pin WHERE LOWER(pin) = LOWER(@pin))
                     AND i.type_fk = (SELECT TOP 1 id FROM type WHERE LOWER(name) = 'name'))
-                AND EXISTS (SELECT TOP 1 * FROM token WHERE Token = @token_e); 
+                AND EXISTS (SELECT TOP 1 * FROM token WHERE Token = @token_e)
+                AND EXISTS (SELECT TOP 1 id FROM [user] WHERE email = @token_d AND id = @userId); 
         */},
         connectionString: connStr
     });
@@ -198,11 +212,9 @@ exports.db2 = (function () {
             SELECT MIN(i.ts) AS 'ts' FROM info i INNER JOIN pins_info pi ON pi.info = i.id
             INNER JOIN pin p ON p.id = pi.pin
             WHERE LOWER(p.pin) = LOWER(@pin)
-                AND EXISTS (SELECT TOP 1 * FROM token WHERE Token = @token_e)
             UNION SELECT MIN(pi.ts) FROM pins_info pi
             INNER JOIN pin p ON p.id = pi.pin
             WHERE LOWER(p.pin) = LOWER(@pin) 
-                AND EXISTS (SELECT TOP 1 * FROM token WHERE Token = @token_e); 
         */},
         connectionString: connStr
     });
@@ -210,7 +222,8 @@ exports.db2 = (function () {
     out.updateInfo_poll = edge.func('sql', {
         source: function () {/* 
             UPDATE info SET info = @info, more = @detail, ts = @timestamp WHERE id = @guid AND [user] = @userId 
-                AND EXISTS (SELECT TOP 1 * FROM token WHERE Token = @token_e);
+                AND EXISTS (SELECT TOP 1 * FROM token WHERE Token = @token_e)
+                AND EXISTS (SELECT TOP 1 id FROM [user] WHERE email = @token_d AND id = @userId);
         */},
         connectionString: connStr
     });
@@ -218,7 +231,8 @@ exports.db2 = (function () {
     out.updatePin_poll = edge.func('sql', {
         source: function () {/* 
             UPDATE pin SET name = @name, ts = @timestamp WHERE [user] = @userId AND id = @guid 
-                AND EXISTS (SELECT TOP 1 * FROM token WHERE Token = @token_e);
+                AND EXISTS (SELECT TOP 1 * FROM token WHERE Token = @token_e)
+                AND EXISTS (SELECT TOP 1 id FROM [user] WHERE email = @token_d AND id = @userId);
         */},
         connectionString: connStr
     });
@@ -228,7 +242,8 @@ exports.db2 = (function () {
             UPDATE contact SET contact.can_update = @canUpdate, ts = @timestamp
             WHERE contact.id = @contactId
             AND EXISTS(SELECT TOP 1 p.id FROM pin p WHERE p.[user] = @userId AND p.id = contact.pin) 
-                AND EXISTS (SELECT TOP 1 * FROM token WHERE Token = @token_e);
+                AND EXISTS (SELECT TOP 1 * FROM token WHERE Token = @token_e)
+                AND EXISTS (SELECT TOP 1 id FROM [user] WHERE email = @token_d AND id = @userId);
         */},
         connectionString: connStr
     });
@@ -240,7 +255,8 @@ exports.db2 = (function () {
 	            AND EXISTS(SELECT TOP 1 id FROM info WHERE id = @infoId AND [user] = @userId)
 	            AND EXISTS(SELECT TOP 1 id FROM pin WHERE id = @pinId AND [user] = @userId)
 	            AND NOT EXISTS (SELECT TOP 1 id FROM pins_info WHERE pin = @pinId AND info = @infoId) 
-                AND EXISTS (SELECT TOP 1 * FROM token WHERE Token = @token_e);
+                AND EXISTS (SELECT TOP 1 * FROM token WHERE Token = @token_e)
+                AND EXISTS (SELECT TOP 1 id FROM [user] WHERE email = @token_d AND id = @userId);
         */},
         connectionString: connStr
     });
@@ -248,7 +264,8 @@ exports.db2 = (function () {
     out.deletePinPhoto = edge.func('sql', {
         source: function () {/* 
             UPDATE pin SET photo_path = null WHERE id = @pinId AND [user] = @userId 
-                AND EXISTS (SELECT TOP 1 * FROM token WHERE Token = @token_e);
+                AND EXISTS (SELECT TOP 1 * FROM token WHERE Token = @token_e)
+                AND EXISTS (SELECT TOP 1 id FROM [user] WHERE email = @token_d AND id = @userId);
         */},
         connectionString: connStr
     });
@@ -256,7 +273,8 @@ exports.db2 = (function () {
     out.updatePinPhoto = edge.func('sql', {
         source: function () {/* 
             UPDATE pin SET photo_path = @photoPath WHERE [user] = @userId AND id = @pinId 
-                AND EXISTS (SELECT TOP 1 * FROM token WHERE Token = @token_e);
+                AND EXISTS (SELECT TOP 1 * FROM token WHERE Token = @token_e)
+                AND EXISTS (SELECT TOP 1 id FROM [user] WHERE email = @token_d AND id = @userId);
         */},
         connectionString: connStr
     });
@@ -268,7 +286,8 @@ exports.db2 = (function () {
             WHERE pin = @pinId AND info = @infoId AND id = @guid
             AND EXISTS(SELECT TOP 1 id FROM pin WHERE id = @pinId AND [user] = @userId)
             AND EXISTS(SELECT TOP 1 id FROM info WHERE id = @infoId AND [user] = @userId) 
-                AND EXISTS (SELECT TOP 1 * FROM token WHERE Token = @token_e);
+                AND EXISTS (SELECT TOP 1 * FROM token WHERE Token = @token_e)
+                AND EXISTS (SELECT TOP 1 id FROM [user] WHERE email = @token_d AND id = @userId);
         */},
         connectionString: connStr
     });
@@ -282,7 +301,8 @@ exports.db2 = (function () {
                 AND (SELECT COUNT(i.id) FROM info i INNER JOIN type t ON t.id = i.type_fk WHERE LOWER(t.name) = 'name'
 					AND EXISTS(SELECT i.id FROM info i INNER JOIN type t ON t.id  = i.type_fk
 					WHERE i.id = @guid AND LOWER(t.name) = 'name') AND i.[user] = @userId) <> 1 
-                AND EXISTS (SELECT TOP 1 * FROM token WHERE Token = @token_e);
+                AND EXISTS (SELECT TOP 1 * FROM token WHERE Token = @token_e)
+                AND EXISTS (SELECT TOP 1 id FROM [user] WHERE email = @token_d AND id = @userId);
         */},
         connectionString: connStr
     });
@@ -290,11 +310,14 @@ exports.db2 = (function () {
     out.deletePin_poll = edge.func('sql', {
         source: function () {/* 
             UPDATE contact SET is_deleted = 1, ts = @timestamp WHERE EXISTS(SELECT TOP 1 id FROM pin p WHERE p.[user] = @userId AND p.id = @pinId) AND pin = @pinId
-                AND EXISTS (SELECT TOP 1 * FROM token WHERE Token = @token_e);
+                AND EXISTS (SELECT TOP 1 * FROM token WHERE Token = @token_e)
+                AND EXISTS (SELECT TOP 1 id FROM [user] WHERE email = @token_d AND id = @userId);
             UPDATE pins_info SET is_deleted = 1, ts = @timestamp WHERE EXISTS(SELECT TOP 1 id FROM pin p WHERE p.[user] = @userId AND p.id = @pinId) AND pin = @pinId
-                AND EXISTS (SELECT TOP 1 * FROM token WHERE Token = @token_e);
+                AND EXISTS (SELECT TOP 1 * FROM token WHERE Token = @token_e)
+                AND EXISTS (SELECT TOP 1 id FROM [user] WHERE email = @token_d AND id = @userId);
             UPDATE pin SET is_deleted = 1, ts = @timestamp WHERE id = @pinId AND [user] = @userId
-                AND EXISTS (SELECT TOP 1 * FROM token WHERE Token = @token_e);
+                AND EXISTS (SELECT TOP 1 * FROM token WHERE Token = @token_e)
+                AND EXISTS (SELECT TOP 1 id FROM [user] WHERE email = @token_d AND id = @userId);
         */},
         connectionString: connStr
     });
@@ -302,7 +325,8 @@ exports.db2 = (function () {
     out.deleteContact_poll = edge.func('sql', {
         source: function () {/* 
             UPDATE contact SET is_deleted = 1, ts = @timestamp WHERE id = @guid AND [user] = @userId 
-                AND EXISTS (SELECT TOP 1 * FROM token WHERE Token = @token_e);
+                AND EXISTS (SELECT TOP 1 * FROM token WHERE Token = @token_e)
+                AND EXISTS (SELECT TOP 1 id FROM [user] WHERE email = @token_d AND id = @userId);
         */},
         connectionString: connStr
     });

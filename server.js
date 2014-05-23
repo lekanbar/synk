@@ -246,7 +246,7 @@ app.get("/api/get/register", function (req, res) {
         pword: bcrypt.hashSync(req.query.password),
         defname: req.query.defaultName,
         timestamp: getTimestamp(),
-        token: encrypt(req.query.email)
+        token_e: encrypt(req.query.email)
     };
 
     db2.getExistingUser(data, function (err1, result1) {
