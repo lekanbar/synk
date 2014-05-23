@@ -6,7 +6,7 @@ var express = require('express'),
     db2 = require('./server/db2').db2,
     path = require('path'),
     fs = require('fs'),
-    oauthserver = require('node-oauth2-server');
+    bcrypt = require('bcrypt-nodejs');
 
 // all environments
 app.set('port', process.env.PORT || 3000);
@@ -15,24 +15,13 @@ app.use(express.json());
 app.use(express.urlencoded());
 app.use(express.methodOverride());
 
-app.oauth = oauthserver({
-    model: {}, // See below for specification
-    grants: ['password'],
-    debug: true
-});
 app.use(express.bodyParser({ keepExtensions: true, uploadDir: __dirname + '/public/uploads' }));
 app.use(express.errorHandler());
-
-app.all('/oauth/token', app.oauth.grant());
 
 // development only
 if ('development' == app.get('env')) {
     app.use(express.errorHandler());
 }
-
-app.get('/authorize', app.oauth.authorise(), function (req, res) {
-    res.send('Secret area');
-});
 
 app.get("/index", function (req, res) {
     db2.getTypes(null, function (err, result) {
@@ -185,6 +174,21 @@ app.get("/api/get/types", function (req, res) {
 
 //==========GET=================
 
+/*app.get("/api/get/login", function (req, res) {
+    var data = {
+        login: req.query.login,
+        password: bcrypt.hashSync(req.query.password)
+    };
+    db2.getUserByLoginAndPassword(data, function (err, result) {
+        if (err) {
+            res.send(err);
+        }
+        else {
+            res.send(result);
+        }
+    });
+});*/
+
 app.get("/api/get/login", function (req, res) {
     var data = {
         login: req.query.login,
@@ -195,7 +199,17 @@ app.get("/api/get/login", function (req, res) {
             res.send(err);
         }
         else {
-            res.send(result);
+            for (var i in result) {
+                if (result.hasOwnProperty(i)) { 
+                    if (bcrypt.compareSync(data.password, result[i]["pword"])) {
+                        res.send(result);
+                    }
+                    else{
+                        res.send();
+                    }
+                }
+            }
+            res.send();
         }
     });
 });
@@ -218,10 +232,11 @@ app.get("/api/get/pinimage", function (req, res) {
 
 //server first
 app.get("/api/get/register", function (req, res) {
+    var password = bcrypt.hashSync();
     var data = {
         username: req.query.username,
         email: req.query.email,
-        pword: req.query.password,
+        pword: bcrypt.hashSync(req.query.password),
         defname: req.query.defaultName,
         timestamp: getTimestamp()
     };
@@ -556,7 +571,6 @@ var getTimestamp = function () {
 
 //==========SERVER=================
 
-app.use(app.oauth.errorHandler());
 app.listen(app.get('port'));
 console.log('Express server listening on port ' + app.get('port'));
 var types = [{ id: '1', name: 'Address', icon_name: '198,24,0', phone_url: '' },

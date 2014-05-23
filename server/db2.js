@@ -77,9 +77,16 @@ exports.db2 = (function () {
         connectionString: connStr
     });
 
+    /*out.getUserByLoginAndPassword = edge.func('sql', {
+        source: function () {
+            SELECT * FROM [user] WHERE (email = @login OR username = @login) AND pword = @password
+        },
+        connectionString: connStr
+    });*/
+
     out.getUserByLoginAndPassword = edge.func('sql', {
         source: function () {/* 
-            SELECT * FROM [user] WHERE (email = @login OR username = @login) AND pword = @password
+            SELECT * FROM [user] WHERE (email = @login OR username = @login) LIMIT 1
         */},
         connectionString: connStr
     });
