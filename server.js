@@ -8,6 +8,8 @@ var express = require('express'),
     fs = require('fs'),
     bcrypt = require('bcrypt-nodejs');
 
+var secret = "@one is gonna be a blast";
+
 // all environments
 app.set('port', process.env.PORT || 3000);
 app.use(express.logger('dev'));
@@ -174,21 +176,6 @@ app.get("/api/get/types", function (req, res) {
 
 //==========GET=================
 
-/*app.get("/api/get/login", function (req, res) {
-    var data = {
-        login: req.query.login,
-        password: bcrypt.hashSync(req.query.password)
-    };
-    db2.getUserByLoginAndPassword(data, function (err, result) {
-        if (err) {
-            res.send(err);
-        }
-        else {
-            res.send(result);
-        }
-    });
-});*/
-
 app.get("/api/get/login", function (req, res) {
     var data = {
         login: req.query.login,
@@ -200,16 +187,17 @@ app.get("/api/get/login", function (req, res) {
         }
         else {
             for (var i in result) {
-                if (result.hasOwnProperty(i)) { 
+                if (result.hasOwnProperty(i)) {
                     if (bcrypt.compareSync(data.password, result[i]["pword"])) {
+                        result[i]["token"] = encrypt(result[i]["email"]);
                         res.send(result);
                     }
-                    else{
-                        res.send();
+                    else {
+                        res.send([]);
                     }
                 }
             }
-            res.send();
+            res.send([]);
         }
     });
 });
@@ -238,7 +226,8 @@ app.get("/api/get/register", function (req, res) {
         email: req.query.email,
         pword: bcrypt.hashSync(req.query.password),
         defname: req.query.defaultName,
-        timestamp: getTimestamp()
+        timestamp: getTimestamp(),
+        token: encrypt(req.query.email)
     };
 
     db2.getExistingUser(data, function (err1, result1) {
@@ -567,6 +556,20 @@ var getPin = function () {
 
 var getTimestamp = function () {
     return Math.round(new Date().getTime() / 1000.0);
+};
+
+var encrypt = function(text){
+    var cipher = crypto.createCipher('aes-256-cbc', secret);
+    var c = cipher.update(text, 'utf8', 'hex');
+    c += cipher.final('hex');
+    return c;
+};
+
+var decrypt = function(text){
+    var decipher = crypto.createDecipher('aes-256-cbc', secret);
+    var d = decipher.update(text, 'hex', 'utf8');
+    d += decipher.final('utf8');
+    return d;
 };
 
 //==========SERVER=================

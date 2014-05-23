@@ -77,16 +77,9 @@ exports.db2 = (function () {
         connectionString: connStr
     });
 
-    /*out.getUserByLoginAndPassword = edge.func('sql', {
-        source: function () {
-            SELECT * FROM [user] WHERE (email = @login OR username = @login) AND pword = @password
-        },
-        connectionString: connStr
-    });*/
-
     out.getUserByLoginAndPassword = edge.func('sql', {
         source: function () {/* 
-            SELECT * FROM [user] WHERE (email = @login OR username = @login) LIMIT 1
+            SELECT TOP 1 * FROM [user] WHERE (email = @login OR username = @login)
         */},
         connectionString: connStr
     });
@@ -124,14 +117,15 @@ exports.db2 = (function () {
             INSERT INTO info SELECT CAST(NEWID() AS NCHAR(36)), (SELECT TOP 1 u.id FROM [user] u WHERE LOWER(u.username) = @username),
 	            (SELECT t.id FROM type t WHERE LOWER(t.name) = 'name'), @defname, '', @timestamp, 0
             WHERE 
-	            EXISTS(SELECT u.id FROM [user] u WHERE LOWER(u.username) = LOWER(@username))  
+	            EXISTS(SELECT u.id FROM [user] u WHERE LOWER(u.username) = LOWER(@username));
+            INSERT INTO token VALUES(@token)  
         */},
         connectionString: connStr
     });
 
     out.getUserByUsernameAndEmail = edge.func('sql', {
         source: function () {/* 
-            SELECT TOP 1 id FROM [user] WHERE username = @username AND email = @email 
+            SELECT TOP 1 id, @token AS 'token' FROM [user] WHERE username = @username AND email = @email 
         */},
         connectionString: connStr
     });
